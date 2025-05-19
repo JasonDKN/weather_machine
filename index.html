@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      (async () => {
+        const cities = [
+          {
+            label: "Winnipeg",
+            url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.854&long=-97.175&unit=metric&count=15&offset=0",
+          },
+          {
+            label: "Brandon",
+            url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.85&long=-99.96&unit=metric&count=15&offset=0",
+          },
+        ];
+        const citiesData = await Promise.all(
+          cities.map(async (city) => {
+            const res = await fetch(city.url);
+            const rawData = await res.json();
+            const cityData = {
+              date: new Date(
+                rawData.longTerm[2].time.local
+              ).toLocaleDateString(),
+              temperature: rawData.longTerm[2].day.temperature.value,
+              snow: rawData.longTerm[2].snow.value,
+              wind: rawData.longTerm[2].day.wind.speed,
+            };
+            const cityUnits = {
+              snow: rawData.display.unit.snow,
+              wind: rawData.display.unit.wind,
+              temperature: rawData.display.unit.temperature,
+            };
+            return {
+              label: city.label,
+              data: cityData,
+              units: cityUnits,
+            };
+          })
+        );
+
+        citiesData
+          .filter((city) => city.snow > 0 || city.wind > 30)
+          .forEach((city) => {
+            const cityLabel = document.createElement("p");
+            cityLabel.innerText = `city: ${city.label}`;
+            document.body.appendChild(cityLabel);
+
+            const cityDate = document.createElement("p");
+            cityDate.innerText = `date: ${city.data.date}`;
+            document.body.appendChild(cityDate);
+
+            const cityTemperature = document.createElement("p");
+            cityTemperature.innerText = `temperature: ${city.data.temperature}`;
+            document.body.appendChild(cityTemperature);
+
+            const citySnow = document.createElement("p");
+            citySnow.innerText = `snow: ${city.data.snow}`;
+            document.body.appendChild(citySnow);
+
+            const cityWind = document.createElement("p");
+            cityWind.innerText = `wind: ${city.data.wind}`;
+            document.body.appendChild(cityWind);
+          });
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
