@@ -66,7 +66,7 @@
             url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=48.402&long=-89.31&unit=metric&count=15&offset=0",
           },
         ];
-        const citiesData = await Promise.all(
+        const citiesAPIData = await Promise.all(
           cities.map(async (city) => {
             const res = await fetch(city.url);
             const rawData = await res.json();
@@ -92,6 +92,26 @@
           })
         );
 
+        const citiesData = citiesAPIData
+          .map((city) => {
+            const windAlert = city.data.wind > 18;
+            const snowAlert = city.data.snow > 0;
+            const rainAlert = city.data.rain > 0;
+
+            const generalAlert = windAlert || snowAlert || rainAlert;
+
+            return {
+              ...city,
+              alert: {
+                wind: windAlert,
+                snow: snowAlert,
+                rain: rainAlert,
+                general: generalAlert,
+              },
+            };
+          })
+          .sort((a, b) => (a.alert.general ? -1 : 1));
+
         const pageContainer = document.querySelector("#page-container");
 
         const regionContainer = document.createElement("div");
@@ -115,13 +135,7 @@
             cityContainer.className = "city-container";
             citiesContainer.appendChild(cityContainer);
 
-            const windAlert = city.data.wind > 18;
-            const snowAlert = city.data.snow > 0;
-            const rainAlert = city.data.rain > 0;
-
-            const generalAlert = windAlert || snowAlert || rainAlert;
-
-            if (generalAlert) {
+            if (city.alert.general) {
               cityContainer.style.outline = "2px solid crimson";
             }
 
@@ -140,21 +154,21 @@
             const citySnow = document.createElement("p");
             citySnow.innerText = `Snow: ${city.data.snow}`;
             cityContainer.appendChild(citySnow);
-            if (snowAlert) {
+            if (city.alert.snow) {
               citySnow.style.color = "red";
             }
 
             const cityWind = document.createElement("p");
             cityWind.innerText = `Wind: ${city.data.wind}`;
             cityContainer.appendChild(cityWind);
-            if (windAlert) {
+            if (city.alert.wind) {
               cityWind.style.color = "red";
             }
 
             const cityRain = document.createElement("p");
             cityRain.innerText = `Rain: ${city.data.rain}`;
             cityContainer.appendChild(cityRain);
-            if (rainAlert) {
+            if (city.alert.rain) {
               cityRain.style.color = "red";
             }
           });
