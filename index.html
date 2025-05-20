@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        font-family: "Poetsen One", sans-serif;
+        font-weight: 400;
+      }
+      p {
+        margin: 0;
+      }
+      .city-container {
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background-color: beige;
+      }
+    </style>
     <script>
       (async () => {
         const cities = [
@@ -14,6 +37,10 @@
           {
             label: "Brandon",
             url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.85&long=-99.96&unit=metric&count=15&offset=0",
+          },
+          {
+            label: "Morden",
+            url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.192&long=-98.112&unit=metric&count=15&offset=0",
           },
         ];
         const citiesData = await Promise.all(
@@ -27,6 +54,7 @@
               temperature: rawData.longTerm[2].day.temperature.value,
               snow: rawData.longTerm[2].snow.value,
               wind: rawData.longTerm[2].day.wind.speed,
+              rain: rawData.longTerm[2].rain.value,
             };
             const cityUnits = {
               snow: rawData.display.unit.snow,
@@ -41,28 +69,56 @@
           })
         );
 
+        const regionContainer = document.createElement("div");
+        document.body.appendChild(regionContainer);
+        regionContainer.id = "region-Winnipeg";
+        const regionHeader = document.createElement("h2");
+        regionContainer.appendChild(regionHeader);
+        regionHeader.innerText = "Winnipeg DC";
+
+        const citiesContainer = document.createElement("div");
+        regionContainer.appendChild(citiesContainer);
+        citiesContainer.id = "halfway";
+        citiesContainer.style.display = "flex";
+        citiesContainer.style.gap = "16px";
+
         citiesData
-          .filter((city) => city.snow > 0 || city.wind > 30)
+          //.filter((city) => city.snow > 0 || city.wind > 0)
           .forEach((city) => {
+            const cityContainer = document.createElement("div");
+            cityContainer.id = `city-${city.label}`;
+            cityContainer.className = "city-container";
+            citiesContainer.appendChild(cityContainer);
+            if (city.data.wind > 18) {
+              cityContainer.style.boxShadow = "0 0 10px 3px orange";
+            }
+            if (city.data.rain > 0) {
+              cityContainer.style.backgroundColor = "lightblue";
+            }
+
             const cityLabel = document.createElement("p");
-            cityLabel.innerText = `city: ${city.label}`;
-            document.body.appendChild(cityLabel);
+            cityLabel.innerText = `City: ${city.label}`;
+            cityContainer.appendChild(cityLabel);
 
             const cityDate = document.createElement("p");
-            cityDate.innerText = `date: ${city.data.date}`;
-            document.body.appendChild(cityDate);
+            cityDate.innerText = `Date: ${city.data.date}`;
+            cityContainer.appendChild(cityDate);
 
             const cityTemperature = document.createElement("p");
-            cityTemperature.innerText = `temperature: ${city.data.temperature}`;
-            document.body.appendChild(cityTemperature);
+            cityTemperature.innerText = `Temperature: ${city.data.temperature}`;
+            cityContainer.appendChild(cityTemperature);
 
             const citySnow = document.createElement("p");
-            citySnow.innerText = `snow: ${city.data.snow}`;
-            document.body.appendChild(citySnow);
+            citySnow.innerText = `Snow: ${city.data.snow}`;
+            cityContainer.appendChild(citySnow);
 
             const cityWind = document.createElement("p");
-            cityWind.innerText = `wind: ${city.data.wind}`;
-            document.body.appendChild(cityWind);
+            cityWind.innerText = `Wind: ${city.data.wind}`;
+            cityContainer.appendChild(cityWind);
+
+            const cityRain = document.createElement("p");
+            cityRain.innerText = `Rain: ${city.data.rain}`;
+            cityContainer.appendChild(cityRain);
           });
       })();
     </script>
