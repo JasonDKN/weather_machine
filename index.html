@@ -15,6 +15,9 @@
         font-family: "Poetsen One", sans-serif;
         font-weight: 400;
       }
+      body {
+        margin: 0;
+      }
       p {
         margin: 0;
       }
@@ -25,6 +28,10 @@
         flex-direction: column;
         gap: 8px;
         background-color: beige;
+      }
+      .page-container {
+        margin: auto;
+        width: 1120px;
       }
     </style>
     <script>
@@ -69,8 +76,10 @@
           })
         );
 
+        const pageContainer = document.querySelector("#page-container");
+
         const regionContainer = document.createElement("div");
-        document.body.appendChild(regionContainer);
+        pageContainer.appendChild(regionContainer);
         regionContainer.id = "region-Winnipeg";
         const regionHeader = document.createElement("h2");
         regionContainer.appendChild(regionHeader);
@@ -89,11 +98,15 @@
             cityContainer.id = `city-${city.label}`;
             cityContainer.className = "city-container";
             citiesContainer.appendChild(cityContainer);
-            if (city.data.wind > 18) {
-              cityContainer.style.boxShadow = "0 0 10px 3px orange";
-            }
-            if (city.data.rain > 0) {
-              cityContainer.style.backgroundColor = "lightblue";
+
+            const windAlert = city.data.wind > 18;
+            const snowAlert = city.data.snow > 0;
+            const rainAlert = city.data.rain > 0;
+
+            const generalAlert = windAlert || snowAlert || rainAlert;
+
+            if (generalAlert) {
+              cityContainer.style.outline = "2px solid crimson";
             }
 
             const cityLabel = document.createElement("p");
@@ -111,17 +124,28 @@
             const citySnow = document.createElement("p");
             citySnow.innerText = `Snow: ${city.data.snow}`;
             cityContainer.appendChild(citySnow);
+            if (snowAlert) {
+              citySnow.style.color = "red";
+            }
 
             const cityWind = document.createElement("p");
             cityWind.innerText = `Wind: ${city.data.wind}`;
             cityContainer.appendChild(cityWind);
+            if (windAlert) {
+              cityWind.style.color = "red";
+            }
 
             const cityRain = document.createElement("p");
             cityRain.innerText = `Rain: ${city.data.rain}`;
             cityContainer.appendChild(cityRain);
+            if (rainAlert) {
+              cityRain.style.color = "red";
+            }
           });
       })();
     </script>
   </head>
-  <body></body>
+  <body>
+    <div class="page-container" id="page-container"></div>
+  </body>
 </html>
