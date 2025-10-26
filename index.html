@@ -31,11 +31,20 @@
       }
       .page-container {
         margin: auto;
-        width: 1600px;
+        /* width: 1600px; */
       }
     </style>
     <script>
       (async () => {
+        const DAYS_OF_WEEK = {
+          SUNDAY: 0,
+          MONDAY: 1,
+          TUESDAY: 2,
+          WEDNESDAY: 3,
+          THURSDAY: 4,
+          FRIDAY: 5,
+          SATURDAY: 6,
+        };
         const regions = [
           {
             label: "Winnipeg DC",
@@ -246,34 +255,69 @@
               {
                 label: "Calgary",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=51.028&long=-114.05&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.THURSDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Red Deer",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=52.279&long=-113.791&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Edmonton",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.556&long=-113.558&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.THURSDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Lethbridge",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.688&long=-112.852&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Medicine Hat",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=50.051&long=-110.705&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.THURSDAY],
               },
               {
                 label: "Lloydminster",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.278&long=-110.036&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.FRIDAY],
               },
               {
                 label: "Grande Prairie",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=55.16&long=-118.804&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.SATURDAY],
               },
               {
                 label: "Fort McMurray",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=56.718&long=-111.369&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.SUNDAY],
               },
               {
                 label: "Peace River",
@@ -362,33 +406,48 @@
             ],
           },
         ];
+
+        const dayOfWeekTwoDaysFromNow = (new Date().getDay() + 2) % 7;
+
         const regionsAPIData = await Promise.all(
           regions.map(async (region) => {
             const citiesAPIData = await Promise.all(
-              region.cities.map(async (city) => {
-                const res = await fetch(city.url);
-                const rawData = await res.json();
-                const cityData = {
-                  date: new Date(
-                    rawData.longTerm[2].time.local
-                  ).toLocaleDateString(),
-                  temperature: rawData.longTerm[2].day.temperature.value,
-                  snow: rawData.longTerm[2].snow.value,
-                  wind: rawData.longTerm[2].day.wind.speed,
-                  rain: rawData.longTerm[2].rain.value,
-                };
-                const cityUnits = {
-                  snow: rawData.display.unit.snow,
-                  wind: rawData.display.unit.wind,
-                  temperature: rawData.display.unit.temperature,
-                  rain: rawData.display.unit.rain,
-                };
-                return {
-                  label: city.label,
-                  data: cityData,
-                  units: cityUnits,
-                };
-              })
+              region.cities
+                .filter((city) => {
+                  if (!city.daysOfWeekEnabled) {
+                    return true;
+                  }
+                  if (
+                    // Array.isArray(city.daysOfWeekEnabled) &&
+                    city.daysOfWeekEnabled?.includes(dayOfWeekTwoDaysFromNow)
+                  ) {
+                    return true;
+                  }
+                })
+                .map(async (city) => {
+                  const res = await fetch(city.url);
+                  const rawData = await res.json();
+                  const cityData = {
+                    date: new Date(
+                      rawData.longTerm[2].time.local
+                    ).toLocaleDateString(),
+                    temperature: rawData.longTerm[2].day.temperature.value,
+                    snow: rawData.longTerm[2].snow.value,
+                    wind: rawData.longTerm[2].day.wind.speed,
+                    rain: rawData.longTerm[2].rain.value,
+                  };
+                  const cityUnits = {
+                    snow: rawData.display.unit.snow,
+                    wind: rawData.display.unit.wind,
+                    temperature: rawData.display.unit.temperature,
+                    rain: rawData.display.unit.rain,
+                  };
+                  return {
+                    label: city.label,
+                    data: cityData,
+                    units: cityUnits,
+                  };
+                })
             );
 
             return {
@@ -483,8 +542,6 @@
               if (city.alert.wind) {
                 cityWind.style.color = "red";
               }
-
-              console.log(city);
 
               const cityRain = document.createElement("p");
               cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
