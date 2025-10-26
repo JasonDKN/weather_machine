@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Weather Tables 2.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -302,106 +302,190 @@
               {
                 label: "Medicine Hat",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=50.051&long=-110.705&unit=metric&count=15&offset=0",
-                daysOfWeekEnabled: [DAYS_OF_WEEK.THURSDAY],
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Lloydminster",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.278&long=-110.036&unit=metric&count=15&offset=0",
-                daysOfWeekEnabled: [DAYS_OF_WEEK.FRIDAY],
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Grande Prairie",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=55.16&long=-118.804&unit=metric&count=15&offset=0",
-                daysOfWeekEnabled: [DAYS_OF_WEEK.SATURDAY],
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                ],
               },
               {
                 label: "Fort McMurray",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=56.718&long=-111.369&unit=metric&count=15&offset=0",
-                daysOfWeekEnabled: [DAYS_OF_WEEK.SUNDAY],
+                daysOfWeekEnabled: [DAYS_OF_WEEK.MONDAY, DAYS_OF_WEEK.THURSDAY],
               },
               {
                 label: "Peace River",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=56.232&long=-117.32&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.MONDAY, DAYS_OF_WEEK.FRIDAY],
               },
               {
                 label: "Kelowna",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.9&long=-119.425&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.THURSDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Golden",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=51.299&long=-116.964&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.THURSDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Kamloops",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=50.675&long=-120.326&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.TUESDAY],
               },
               {
                 label: "Vernon",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=50.236&long=-119.357&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.THURSDAY],
               },
               {
                 label: "Revelstoke",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=51.006&long=-118.221&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                ],
               },
               {
                 label: "Prince George",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.927&long=-122.765&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                ],
               },
               {
                 label: "Dawson Creek",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=55.757&long=-120.237&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                ],
               },
               {
                 label: "Saskatoon",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=52.151&long=-106.663&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.MONDAY,
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.THURSDAY,
+                  DAYS_OF_WEEK.FRIDAY,
+                ],
               },
               {
                 label: "Prince Albert",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.216&long=-105.714&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.SUNDAY,
+                  DAYS_OF_WEEK.WEDNESDAY,
+                ],
               },
               {
                 label: "North Battleford",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=52.757&long=-108.294&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Melfort",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=52.856&long=-104.603&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.TUESDAY, DAYS_OF_WEEK.FRIDAY],
               },
               {
                 label: "Drumheller",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=51.406&long=-112.618&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.MONDAY],
               },
               {
                 label: "Fernie",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.505&long=-115.052&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Bonnyville",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=54.268&long=-110.755&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.MONDAY, DAYS_OF_WEEK.THURSDAY],
               },
               {
                 label: "Kindersley",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=51.467&long=-109.156&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.MONDAY, DAYS_OF_WEEK.FRIDAY],
               },
               {
                 label: "Hinton",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=53.401&long=-117.573&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Castlegar",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.295&long=-117.654&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Cardston",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.194&long=-113.308&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [DAYS_OF_WEEK.SATURDAY],
               },
               {
                 label: "Invermere",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=50.505&long=-116.035&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.TUESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
               {
                 label: "Cranbrook",
                 url: "https://weatherapi.pelmorex.com/api/v1/longterm?locale=en-CA&lat=49.514&long=-115.761&unit=metric&count=15&offset=0",
+                daysOfWeekEnabled: [
+                  DAYS_OF_WEEK.WEDNESDAY,
+                  DAYS_OF_WEEK.SATURDAY,
+                ],
               },
             ],
           },
@@ -462,7 +546,7 @@
         const regionsData = regionsAPIData.map((region) => {
           const citiesData = region.cities
             .map((city) => {
-              const windAlert = city.data.wind > 18;
+              const windAlert = city.data.wind > 999;
               const snowAlert = city.data.snow > 0;
               const rainAlert = city.data.rain > 0;
 
