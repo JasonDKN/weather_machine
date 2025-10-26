@@ -12,7 +12,9 @@
     />
     <style>
       html {
-        font-family: "Poetsen One", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
         font-weight: 400;
       }
       body {
@@ -22,16 +24,19 @@
         margin: 0;
       }
       .city-container {
-        padding: 12px;
+        padding: 0 0 12px 0;
         border-radius: 8px;
         display: flex;
         flex-direction: column;
         gap: 8px;
-        background-color: beige;
+        background-color: white;
+        border: 1px solid rgb(0, 0, 0, 0.2);
+        box-shadow: 0 5px 10px 0px rgb(0, 0, 0, 0.2);
       }
       .page-container {
         margin: auto;
-        /* width: 1600px; */
+        max-width: 1180px;
+        padding-bottom: 2rem;
       }
     </style>
     <script>
@@ -47,8 +52,9 @@
         };
         const regions = [
           {
-            label: "Winnipeg DC",
+            label: "DC 49: Winnipeg",
             id: "dc49",
+            primaryBackgroundColour: "#8300FF",
             cities: [
               {
                 label: "Winnipeg",
@@ -81,8 +87,9 @@
             ],
           },
           {
-            label: "Oshawa DC",
+            label: "DC 56: Oshawa",
             id: "dc56",
+            primaryBackgroundColour: "#009B43",
             cities: [
               {
                 label: "Kingston",
@@ -115,8 +122,9 @@
             ],
           },
           {
-            label: "Montreal DC",
+            label: "DC 06: Montreal DC",
             id: "dc06",
+            primaryBackgroundColour: "#990070",
             cities: [
               {
                 label: "Montréal",
@@ -157,8 +165,9 @@
             ],
           },
           {
-            label: "Brampton DC",
+            label: "DC 17: Brampton",
             id: "dc17",
+            primaryBackgroundColour: "#998C00",
             cities: [
               {
                 label: "Windsor",
@@ -207,8 +216,9 @@
             ],
           },
           {
-            label: "Vancouver DC",
+            label: "DC 26: Vancouver",
             id: "dc26",
+            primaryBackgroundColour: "#003D99",
             cities: [
               {
                 label: "Prince George",
@@ -249,8 +259,9 @@
             ],
           },
           {
-            label: "Calgary DC",
+            label: "DC 34: Calgary",
             id: "dc34",
+            primaryBackgroundColour: "#D13437",
             cities: [
               {
                 label: "Calgary",
@@ -570,17 +581,20 @@
           };
         });
 
-        console.log(regionsData);
+        const pageContainer = document.querySelector("#page-container");
+        const dateHeader = document.createElement("h2");
+        dateHeader.innerText = regionsData[0].cities[0].data.date;
+        pageContainer.appendChild(dateHeader);
 
         regionsData.forEach((region) => {
-          const pageContainer = document.querySelector("#page-container");
-
           const regionContainer = document.createElement("div");
+          regionContainer.style.paddingBottom = "2rem";
           pageContainer.appendChild(regionContainer);
           regionContainer.id = `region-${region.id}`;
           const regionHeader = document.createElement("h2");
           regionContainer.appendChild(regionHeader);
           regionHeader.innerText = region.label;
+          regionHeader.style.borderBottom = `4px solid ${region.primaryBackgroundColour}`;
 
           const citiesContainer = document.createElement("div");
           regionContainer.appendChild(citiesContainer);
@@ -594,6 +608,8 @@
             .forEach((city) => {
               const cityContainer = document.createElement("div");
               cityContainer.id = `city-${city.label}`;
+              // cityContainer.style.backgroundColor =
+              //   region.primaryBackgroundColour;
               cityContainer.className = "city-container";
               citiesContainer.appendChild(cityContainer);
 
@@ -602,19 +618,28 @@
               }
 
               const cityLabel = document.createElement("p");
-              cityLabel.innerText = `City: ${city.label}`;
+              cityLabel.innerText = `${city.label}`;
+              cityLabel.style.fontWeight = "bold";
+              cityLabel.style.textAlign = "center";
+              cityLabel.style.padding = "6px 0 6px 0";
+              cityLabel.style.borderBottom = "1px solid rgb(0, 0, 0, 0.2)";
+
+              // cityLabel.style.textDecoration = "underline";
+
               cityContainer.appendChild(cityLabel);
 
-              const cityDate = document.createElement("p");
-              cityDate.innerText = `Date: ${city.data.date}`;
-              cityContainer.appendChild(cityDate);
+              // const cityDate = document.createElement("p");
+              // cityDate.innerText = `Date: ${city.data.date}`;
+              // cityContainer.appendChild(cityDate);
 
               const cityTemperature = document.createElement("p");
               cityTemperature.innerText = `Temperature: ${city.data.temperature}°${city.units.temperature}`;
+              cityTemperature.style.padding = "0 12px 0 12px";
               cityContainer.appendChild(cityTemperature);
 
               const citySnow = document.createElement("p");
               citySnow.innerText = `Snow: ${city.data.snow} ${city.units.snow}`;
+              citySnow.style.padding = "0 12px 0 12px";
               cityContainer.appendChild(citySnow);
               if (city.alert.snow) {
                 citySnow.style.color = "red";
@@ -622,6 +647,7 @@
 
               const cityWind = document.createElement("p");
               cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
+              cityWind.style.padding = "0 12px 0 12px";
               cityContainer.appendChild(cityWind);
               if (city.alert.wind) {
                 cityWind.style.color = "red";
@@ -629,6 +655,7 @@
 
               const cityRain = document.createElement("p");
               cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
+              cityRain.style.padding = "0 12px 0 12px";
               cityContainer.appendChild(cityRain);
               if (city.alert.rain) {
                 cityRain.style.color = "red";
