@@ -381,6 +381,7 @@
                   snow: rawData.display.unit.snow,
                   wind: rawData.display.unit.wind,
                   temperature: rawData.display.unit.temperature,
+                  rain: rawData.display.unit.rain,
                 };
                 return {
                   label: city.label,
@@ -466,25 +467,27 @@
               cityContainer.appendChild(cityDate);
 
               const cityTemperature = document.createElement("p");
-              cityTemperature.innerText = `Temperature: ${city.data.temperature}`;
+              cityTemperature.innerText = `Temperature: ${city.data.temperature}°${city.units.temperature}`;
               cityContainer.appendChild(cityTemperature);
 
               const citySnow = document.createElement("p");
-              citySnow.innerText = `Snow: ${city.data.snow}`;
+              citySnow.innerText = `Snow: ${city.data.snow} ${city.units.snow}`;
               cityContainer.appendChild(citySnow);
               if (city.alert.snow) {
                 citySnow.style.color = "red";
               }
 
               const cityWind = document.createElement("p");
-              cityWind.innerText = `Wind: ${city.data.wind}`;
+              cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
               cityContainer.appendChild(cityWind);
               if (city.alert.wind) {
                 cityWind.style.color = "red";
               }
 
+              console.log(city);
+
               const cityRain = document.createElement("p");
-              cityRain.innerText = `Rain: ${city.data.rain}`;
+              cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
               cityContainer.appendChild(cityRain);
               if (city.alert.rain) {
                 cityRain.style.color = "red";
