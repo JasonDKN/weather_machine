@@ -559,25 +559,24 @@
         console.log(regionsAPIData);
 
         const regionsData = regionsAPIData.map((region) => {
-          const citiesData = region.cities
-            .map((city) => {
-              const windAlert = city.data.wind > 999;
-              const snowAlert = city.data.snow > 0;
-              const rainAlert = city.data.rain > 0;
+          const citiesData = region.cities.map((city) => {
+            const windAlert = city.data.wind > 999;
+            const snowAlert = city.data.snow > 0;
+            const rainAlert = city.data.rain > 0;
 
-              const generalAlert = windAlert || snowAlert || rainAlert;
+            const generalAlert = windAlert || snowAlert || rainAlert;
 
-              return {
-                ...city,
-                alert: {
-                  wind: windAlert,
-                  snow: snowAlert,
-                  rain: rainAlert,
-                  general: generalAlert,
-                },
-              };
-            })
-            .sort((a, b) => (a.alert.general ? -1 : 1));
+            return {
+              ...city,
+              alert: {
+                wind: windAlert,
+                snow: snowAlert,
+                rain: rainAlert,
+                general: generalAlert,
+              },
+            };
+          });
+          // .sort((a, b) => (a.alert.general ? -1 : 1));
 
           return {
             ...region,
