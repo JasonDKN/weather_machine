@@ -560,7 +560,7 @@
 
         const regionsData = regionsAPIData.map((region) => {
           const citiesData = region.cities.map((city) => {
-            const windAlert = city.data.wind > 999;
+            const windAlert = city.data.wind > 40;
             const snowAlert = city.data.snow > 0;
             const rainAlert = city.data.rain > 0;
 
