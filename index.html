@@ -38,6 +38,48 @@
         max-width: 1180px;
         padding-bottom: 2rem;
       }
+      .custom-weather-table {
+        margin-top: 20px;
+        border: 1px solid #dededf;
+        height: 100%;
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        border-spacing: 1px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+      .custom-weather-table th {
+        border: 1px solid #dededf;
+        background-color: #0036d6;
+        text-align: center;
+        color: white;
+        padding: 10px 5px;
+      }
+      .custom-weather-table td {
+        border: 1px solid #dededf;
+        background-color: #ffffff;
+        text-align: center;
+        color: #000000;
+        padding: 5px;
+        vertical-align: top;
+      }
+      .export-button {
+        background-color: #000000;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-top: 10px;
+        display: block;
+        margin-left: auto;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .export-button:hover {
+        background-color: #333333;
+      }
     </style>
     <script>
       (async () => {
@@ -506,8 +548,10 @@
           },
         ];
 
+        // Calculate the day it is
         const dayOfWeekTwoDaysFromNow = (new Date().getDay() + 2) % 7;
 
+        // The fetching of the API data from the website
         const regionsAPIData = await Promise.all(
           regions.map(async (region) => {
             const citiesAPIData = await Promise.all(
@@ -558,6 +602,7 @@
 
         console.log(regionsAPIData);
 
+        // Basicaly the alert section im assuming this is what makes the text red
         const regionsData = regionsAPIData.map((region) => {
           const citiesData = region.cities.map((city) => {
             const windAlert = city.data.wind > 40;
@@ -584,21 +629,29 @@
           };
         });
 
+        // the div he is adding all the content into
         const pageContainer = document.querySelector("#page-container");
+
+        // This is the top line where he is adding the date
         const dateHeader = document.createElement("h2");
         dateHeader.innerText = regionsData[0].cities[0].data.date;
         pageContainer.appendChild(dateHeader);
 
+        // Now he is iterating over each region
         regionsData.forEach((region) => {
+          // This is the overall container where the info for each region is associated in
           const regionContainer = document.createElement("div");
           regionContainer.style.paddingBottom = "2rem";
           pageContainer.appendChild(regionContainer);
           regionContainer.id = `region-${region.id}`;
+
+          // this is the header of each single dc that he is adding into the overall region Container
           const regionHeader = document.createElement("h2");
           regionContainer.appendChild(regionHeader);
           regionHeader.innerText = region.label;
           regionHeader.style.borderBottom = `4px solid ${region.primaryBackgroundColour}`;
 
+          // this is basically the card for each city that he is adding to each container
           const citiesContainer = document.createElement("div");
           regionContainer.appendChild(citiesContainer);
           citiesContainer.id = "halfway";
@@ -606,6 +659,70 @@
           citiesContainer.style.flexWrap = "wrap";
           citiesContainer.style.gap = "16px";
 
+          // the container for the table
+          const tableContainer = document.createElement("div");
+          regionContainer.appendChild(tableContainer);
+
+          // this is the export button
+
+          // this is basically the structure of the table
+          const table = document.createElement("table");
+          table.className = "custom-weather-table";
+          const thead = document.createElement("thead");
+          const tbody = document.createElement("tbody");
+
+          // create header row
+          const headerRow = document.createElement("tr");
+          const headerCategories = [
+            "Region",
+            "Temperature",
+            "Snow (cm)",
+            "Wind (km/h)",
+            "Rain (mm)",
+            "Additional Time",
+          ];
+
+          headerCategories.forEach((i) => {
+            if (
+              i === "Wind (km/h)" &&
+              (region.label === "DC 56: Oshawa" ||
+                region.label === "DC 06: Montreal DC" ||
+                region.label === "DC 17: Brampton" ||
+                region.label === "DC 26: Vancouver")
+            )
+              return;
+            if (
+              i === "Temperature" &&
+              (region.label === "DC 49: Winnipeg" ||
+                region.label === "DC 56: Oshawa" ||
+                region.label === "DC 06: Montreal DC" ||
+                region.label === "DC 26: Vancouver" ||
+                region.label === "DC 34: Calgary")
+            )
+              return;
+
+            const th = document.createElement("th");
+            th.textContent = i;
+            headerRow.appendChild(th);
+          });
+
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          tableContainer.appendChild(table);
+
+          // creating export button component
+          const button = document.createElement("button");
+          button.className = "export-button";
+          button.innerText = "Export";
+
+          button.onclick = function () {
+            exportTable(table, `${region.label}_weather_data.csv`);
+          };
+
+          tableContainer.appendChild(button);
+
+          // this is basically him iterating over each city inside the region we can use this here
           region.cities
             //.filter((city) => city.snow > 0 || city.wind > 0)
             .forEach((city) => {
@@ -616,10 +733,12 @@
               cityContainer.className = "city-container";
               citiesContainer.appendChild(cityContainer);
 
+              // add a red outline if there is an alert
               if (city.alert.general) {
                 cityContainer.style.outline = "2px solid crimson";
               }
 
+              // this is the label of the city card
               const cityLabel = document.createElement("p");
               cityLabel.innerText = `${city.label}`;
               cityLabel.style.fontWeight = "bold";
@@ -635,11 +754,13 @@
               // cityDate.innerText = `Date: ${city.data.date}`;
               // cityContainer.appendChild(cityDate);
 
+              // this is the temperature row
               const cityTemperature = document.createElement("p");
               cityTemperature.innerText = `Temperature: ${city.data.temperature}°${city.units.temperature}`;
               cityTemperature.style.padding = "0 12px 0 12px";
               cityContainer.appendChild(cityTemperature);
 
+              // this is the city snow row
               const citySnow = document.createElement("p");
               citySnow.innerText = `Snow: ${city.data.snow} ${city.units.snow}`;
               citySnow.style.padding = "0 12px 0 12px";
@@ -648,6 +769,7 @@
                 citySnow.style.color = "red";
               }
 
+              // this is city wind row
               const cityWind = document.createElement("p");
               cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
               cityWind.style.padding = "0 12px 0 12px";
@@ -656,6 +778,7 @@
                 cityWind.style.color = "red";
               }
 
+              // this is city rain row
               const cityRain = document.createElement("p");
               cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
               cityRain.style.padding = "0 12px 0 12px";
@@ -663,9 +786,134 @@
               if (city.alert.rain) {
                 cityRain.style.color = "red";
               }
+
+              // TABLE CREATION
+              // table row creation
+              const row = document.createElement("tr");
+
+              //table Elements creations
+              const regionCell = document.createElement("td");
+              regionCell.textContent = `${city.label}`;
+              row.appendChild(regionCell);
+
+              if (
+                !(
+                  region.label === "DC 49: Winnipeg" ||
+                  region.label === "DC 56: Oshawa" ||
+                  region.label === "DC 06: Montreal DC" ||
+                  region.label === "DC 26: Vancouver" ||
+                  region.label === "DC 34: Calgary"
+                )
+              ) {
+                const tempCell = document.createElement("td");
+                tempCell.textContent = `${city.data.temperature}°${city.units.temperature}`;
+                row.appendChild(tempCell);
+              }
+
+              const snowCell = document.createElement("td");
+              snowCell.textContent = `${city.data.snow}`;
+              row.appendChild(snowCell);
+
+              if (
+                !(
+                  region.label === "DC 56: Oshawa" ||
+                  region.label === "DC 06: Montreal DC" ||
+                  region.label === "DC 17: Brampton" ||
+                  region.label === "DC 26: Vancouver"
+                )
+              ) {
+                const windCell = document.createElement("td");
+                windCell.textContent = `${city.data.wind}`;
+                row.appendChild(windCell);
+              }
+
+              const rainCell = document.createElement("td");
+              rainCell.textContent = `${city.data.rain}`;
+              row.appendChild(rainCell);
+
+              const infoCell = document.createElement("td");
+              const snowVal = parseFloat(city.data.snow);
+              const rainVal = parseFloat(city.data.rain);
+              const tempVal = parseFloat(city.data.temperature);
+
+              // logic for what to put in the addiontal comment area
+
+              // Oshawa DC
+              if (region.label == "DC 56: Oshawa") {
+                if (city.label == "Picton" && snowVal > 0) {
+                  infoCell.textContent = "15 mins before first stop";
+                } else if (snowVal <= 3 && rainVal <= 3) {
+                  infoCell.textContent = "No Changes";
+                } else if (
+                  (snowVal > 3 && snowVal <= 5) ||
+                  (rainVal > 3 && rainVal <= 5)
+                ) {
+                  infoCell.textContent = "15 mins before first stop";
+                } else if (
+                  (snowVal > 5 && snowVal <= 10) ||
+                  (rainVal > 5 && rainVal <= 10)
+                ) {
+                  infoCell.textContent =
+                    "15 mins before first stop + 15 mins between deliveries";
+                } else {
+                  infoCell.textContent =
+                    "30 mins before first stop + 15 mins between deliveries";
+                }
+              } else {
+                if (snowVal <= 3) {
+                  infoCell.textContent = "No Changes";
+                } else if (snowVal > 3 && snowVal <= 5) {
+                  infoCell.textContent = "15 mins before first stop";
+                } else if (snowVal > 5 && snowVal <= 10) {
+                  infoCell.textContent =
+                    "15 mins before first stop + 15 mins between deliveries";
+                } else {
+                  infoCell.textContent =
+                    "30 mins before first stop + 15 mins between deliveries";
+                }
+              }
+
+              row.appendChild(infoCell);
+              tbody.appendChild(row);
             });
         });
       })();
+
+      function exportTable(table, filename) {
+        var csv = [];
+
+        // gets the row of the table
+        var rows = table.querySelectorAll("tr");
+
+        // basically go through all thw rows one by one
+        for (var i = 0; i < rows.length; i++) {
+          var row = [];
+
+          // fetch every collumn within the row
+          var cols = rows[i].querySelectorAll("td, th");
+
+          // go through every single element of the rows by basically iterating over the cols
+          for (var j = 0; j < cols.length; j++) {
+            // fetches the text in each cell and pushes it into the rows variable we made earlier
+            var data = cols[j].innerText;
+            row.push(data);
+          }
+
+          csv.push(row.join(","));
+        }
+
+        var CSV_Final = csv.join("\n");
+
+        // all the stuff needed to download the file
+        var a = document.createElement("a");
+        var bom = "\ufeff";
+        a.href =
+          "data:text/csv;charset=utf-8," + encodeURIComponent(bom + CSV_Final);
+        a.setAttribute("download", filename);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     </script>
   </head>
   <body>
