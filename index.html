@@ -168,7 +168,7 @@
             ],
           },
           {
-            label: "DC 06: Montreal DC",
+            label: "DC 06: Montreal",
             id: "dc06",
             primaryBackgroundColour: "#990070",
             cities: [
@@ -677,8 +677,8 @@
             "Region",
             "Temperature",
             "Snow (cm)",
-            "Wind (km/h)",
             "Rain (mm)",
+            "Wind (km/h)",
             "Additional Time",
           ];
 
@@ -686,7 +686,7 @@
             if (
               i === "Wind (km/h)" &&
               (region.label === "DC 56: Oshawa" ||
-                region.label === "DC 06: Montreal DC" ||
+                region.label === "DC 06: Montreal" ||
                 region.label === "DC 17: Brampton" ||
                 region.label === "DC 26: Vancouver")
             )
@@ -695,7 +695,7 @@
               i === "Temperature" &&
               (region.label === "DC 49: Winnipeg" ||
                 region.label === "DC 56: Oshawa" ||
-                region.label === "DC 06: Montreal DC" ||
+                region.label === "DC 06: Montreal" ||
                 region.label === "DC 26: Vancouver" ||
                 region.label === "DC 34: Calgary")
             )
@@ -769,15 +769,6 @@
                 citySnow.style.color = "red";
               }
 
-              // this is city wind row
-              const cityWind = document.createElement("p");
-              cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
-              cityWind.style.padding = "0 12px 0 12px";
-              cityContainer.appendChild(cityWind);
-              if (city.alert.wind) {
-                cityWind.style.color = "red";
-              }
-
               // this is city rain row
               const cityRain = document.createElement("p");
               cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
@@ -785,6 +776,15 @@
               cityContainer.appendChild(cityRain);
               if (city.alert.rain) {
                 cityRain.style.color = "red";
+              }
+
+              // this is city wind row
+              const cityWind = document.createElement("p");
+              cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
+              cityWind.style.padding = "0 12px 0 12px";
+              cityContainer.appendChild(cityWind);
+              if (city.alert.wind) {
+                cityWind.style.color = "red";
               }
 
               // TABLE CREATION
@@ -800,7 +800,7 @@
                 !(
                   region.label === "DC 49: Winnipeg" ||
                   region.label === "DC 56: Oshawa" ||
-                  region.label === "DC 06: Montreal DC" ||
+                  region.label === "DC 06: Montreal" ||
                   region.label === "DC 26: Vancouver" ||
                   region.label === "DC 34: Calgary"
                 )
@@ -814,10 +814,14 @@
               snowCell.textContent = `${city.data.snow}`;
               row.appendChild(snowCell);
 
+              const rainCell = document.createElement("td");
+              rainCell.textContent = `${city.data.rain}`;
+              row.appendChild(rainCell);
+
               if (
                 !(
                   region.label === "DC 56: Oshawa" ||
-                  region.label === "DC 06: Montreal DC" ||
+                  region.label === "DC 06: Montreal" ||
                   region.label === "DC 17: Brampton" ||
                   region.label === "DC 26: Vancouver"
                 )
@@ -826,10 +830,6 @@
                 windCell.textContent = `${city.data.wind}`;
                 row.appendChild(windCell);
               }
-
-              const rainCell = document.createElement("td");
-              rainCell.textContent = `${city.data.rain}`;
-              row.appendChild(rainCell);
 
               const infoCell = document.createElement("td");
               const snowVal = parseFloat(city.data.snow);
@@ -860,7 +860,12 @@
                     "30 mins before first stop + 15 mins between deliveries";
                 }
               } else {
-                if (snowVal <= 3) {
+                if (
+                  region.label == "DC 06: Montreal" ||
+                  region.label == "DC 26: Vancouver"
+                ) {
+                  infoCell.textContent = "";
+                } else if (snowVal <= 3) {
                   infoCell.textContent = "No changes";
                 } else if (snowVal > 3 && snowVal <= 5) {
                   infoCell.textContent = "15 mins before first stop";
