@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather Tables 2.0</title>
+    <title>Weather Tables 2.0 - Multi-Day</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -40,6 +40,7 @@
       }
       .custom-weather-table {
         margin-top: 20px;
+        margin-bottom: 30px;
         border: 1px solid #dededf;
         height: 100%;
         width: 100%;
@@ -64,6 +65,13 @@
         padding: 5px;
         vertical-align: top;
       }
+      .table-date-header {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #0036d6;
+      }
       .export-button {
         background-color: #000000;
         color: #ffffff;
@@ -71,10 +79,11 @@
         border-radius: 5px;
         padding: 10px 15px;
         margin-top: 10px;
-        display: block;
-        margin-left: auto;
+        margin-bottom: 10px;
+        display: inline-block;
         cursor: pointer;
         font-weight: bold;
+        margin-right: 10px;
       }
 
       .export-button:hover {
@@ -547,6 +556,9 @@
             ],
           },
         ];
+        // Configuration
+        const START_DAY_INDEX = 2;
+        const NUM_DAYS_TO_DISPLAY = 4;
 
         // Calculate the day it is
         const dayOfWeekTwoDaysFromNow = (new Date().getDay() + 3) % 7;
@@ -561,7 +573,6 @@
                     return true;
                   }
                   if (
-                    // Array.isArray(city.daysOfWeekEnabled) &&
                     city.daysOfWeekEnabled?.includes(dayOfWeekTwoDaysFromNow)
                   ) {
                     return true;
@@ -570,15 +581,27 @@
                 .map(async (city) => {
                   const res = await fetch(city.url);
                   const rawData = await res.json();
-                  const cityData = {
-                    date: new Date(
-                      rawData.longTerm[3].time.local
-                    ).toLocaleDateString(),
-                    temperature: rawData.longTerm[3].day.temperature.value,
-                    snow: rawData.longTerm[3].snow.value,
-                    wind: rawData.longTerm[3].day.wind.speed,
-                    rain: rawData.longTerm[3].rain.value,
-                  };
+
+                  // Extract multiple days of data
+                  const daysData = [];
+                  for (
+                    let i = START_DAY_INDEX;
+                    i < START_DAY_INDEX + NUM_DAYS_TO_DISPLAY;
+                    i++
+                  ) {
+                    if (rawData.longTerm[i]) {
+                      daysData.push({
+                        date: new Date(
+                          rawData.longTerm[i].time.local
+                        ).toLocaleDateString(),
+                        temperature: rawData.longTerm[i].day.temperature.value,
+                        snow: rawData.longTerm[i].snow.value,
+                        wind: rawData.longTerm[i].day.wind.speed,
+                        rain: rawData.longTerm[i].rain.value,
+                      });
+                    }
+                  }
+
                   const cityUnits = {
                     snow: rawData.display.unit.snow,
                     wind: rawData.display.unit.wind,
@@ -587,7 +610,7 @@
                   };
                   return {
                     label: city.label,
-                    data: cityData,
+                    daysData: daysData,
                     units: cityUnits,
                   };
                 })
@@ -602,26 +625,31 @@
 
         console.log(regionsAPIData);
 
-        // Basicaly the alert section im assuming this is what makes the text red
+        // Add alerts for each day
         const regionsData = regionsAPIData.map((region) => {
           const citiesData = region.cities.map((city) => {
-            const windAlert = city.data.wind > 40;
-            const snowAlert = city.data.snow > 0;
-            const rainAlert = city.data.rain > 0;
+            const daysWithAlerts = city.daysData.map((dayData) => {
+              const windAlert = dayData.wind > 40;
+              const snowAlert = dayData.snow > 0;
+              const rainAlert = dayData.rain > 0;
+              const generalAlert = windAlert || snowAlert || rainAlert;
 
-            const generalAlert = windAlert || snowAlert || rainAlert;
+              return {
+                ...dayData,
+                alert: {
+                  wind: windAlert,
+                  snow: snowAlert,
+                  rain: rainAlert,
+                  general: generalAlert,
+                },
+              };
+            });
 
             return {
               ...city,
-              alert: {
-                wind: windAlert,
-                snow: snowAlert,
-                rain: rainAlert,
-                general: generalAlert,
-              },
+              daysData: daysWithAlerts,
             };
           });
-          // .sort((a, b) => (a.alert.general ? -1 : 1));
 
           return {
             ...region,
@@ -629,171 +657,150 @@
           };
         });
 
-        // the div he is adding all the content into
+        // Helper function to calculate additional time based on snow/rain
+        function calculateAdditionalTime(
+          snowVal,
+          rainVal,
+          regionLabel,
+          cityLabel
+        ) {
+          if (regionLabel === "DC 56: Oshawa") {
+            if (cityLabel === "Picton" && snowVal > 0) {
+              return "15 mins before first stop";
+            } else if (snowVal <= 3 && rainVal <= 3) {
+              return "No changes";
+            } else if (
+              (snowVal > 3 && snowVal <= 5) ||
+              (rainVal > 3 && rainVal <= 5)
+            ) {
+              return "15 mins before first stop";
+            } else if (
+              (snowVal > 5 && snowVal <= 10) ||
+              (rainVal > 5 && rainVal <= 10)
+            ) {
+              return "15 mins before first stop + 15 mins between deliveries";
+            } else {
+              return "30 mins before first stop + 15 mins between deliveries";
+            }
+          } else if (
+            regionLabel === "DC 06: Montreal" ||
+            regionLabel === "DC 26: Vancouver"
+          ) {
+            return "";
+          } else {
+            if (snowVal <= 3) {
+              return "No changes";
+            } else if (snowVal > 3 && snowVal <= 5) {
+              return "15 mins before first stop";
+            } else if (snowVal > 5 && snowVal <= 10) {
+              return "15 mins before first stop + 15 mins between deliveries";
+            } else {
+              return "30 mins before first stop + 15 mins between deliveries";
+            }
+          }
+        }
+
         const pageContainer = document.querySelector("#page-container");
 
-        // This is the top line where he is adding the date
-        const dateHeader = document.createElement("h2");
-        dateHeader.innerText = regionsData[0].cities[0].data.date;
-        pageContainer.appendChild(dateHeader);
+        // Main header
+        const mainHeader = document.createElement("h1");
+        mainHeader.innerText = "Weather Forecast";
+        mainHeader.style.textAlign = "center";
+        mainHeader.style.marginTop = "20px";
+        pageContainer.appendChild(mainHeader);
 
-        // Now he is iterating over each region
+        // Iterate over each region
         regionsData.forEach((region) => {
-          // This is the overall container where the info for each region is associated in
           const regionContainer = document.createElement("div");
           regionContainer.style.paddingBottom = "2rem";
           pageContainer.appendChild(regionContainer);
           regionContainer.id = `region-${region.id}`;
 
-          // this is the header of each single dc that he is adding into the overall region Container
           const regionHeader = document.createElement("h2");
           regionContainer.appendChild(regionHeader);
           regionHeader.innerText = region.label;
           regionHeader.style.borderBottom = `4px solid ${region.primaryBackgroundColour}`;
 
-          // this is basically the card for each city that he is adding to each container
-          const citiesContainer = document.createElement("div");
-          regionContainer.appendChild(citiesContainer);
-          citiesContainer.id = "halfway";
-          citiesContainer.style.display = "flex";
-          citiesContainer.style.flexWrap = "wrap";
-          citiesContainer.style.gap = "16px";
+          // Create a table for each day
+          const numDays = region.cities[0].daysData.length;
 
-          // the container for the table
-          const tableContainer = document.createElement("div");
-          regionContainer.appendChild(tableContainer);
+          for (let dayIndex = 0; dayIndex < numDays; dayIndex++) {
+            const tableContainer = document.createElement("div");
+            regionContainer.appendChild(tableContainer);
 
-          // this is the export button
+            // Date header for this table
+            const dateHeader = document.createElement("div");
+            dateHeader.className = "table-date-header";
+            dateHeader.innerText = region.cities[0].daysData[dayIndex].date;
+            tableContainer.appendChild(dateHeader);
 
-          // this is basically the structure of the table
-          const table = document.createElement("table");
-          table.className = "custom-weather-table";
-          const thead = document.createElement("thead");
-          const tbody = document.createElement("tbody");
+            const table = document.createElement("table");
+            table.className = "custom-weather-table";
+            const thead = document.createElement("thead");
+            const tbody = document.createElement("tbody");
 
-          // create header row
-          const headerRow = document.createElement("tr");
-          const headerCategories = [
-            "Region",
-            "Temperature",
-            "Snow (cm)",
-            "Rain (mm)",
-            "Wind (km/h)",
-            "Additional Time",
-          ];
+            // Create header row
+            const headerRow = document.createElement("tr");
+            const headerCategories = [
+              "Region",
+              "Temperature",
+              "Snow (cm)",
+              "Rain (mm)",
+              "Wind (km/h)",
+              "Additional Time",
+            ];
 
-          headerCategories.forEach((i) => {
-            if (
-              i === "Wind (km/h)" &&
-              (region.label === "DC 56: Oshawa" ||
-                region.label === "DC 06: Montreal" ||
-                region.label === "DC 17: Brampton" ||
-                region.label === "DC 26: Vancouver")
-            )
-              return;
-            if (
-              i === "Temperature" &&
-              (region.label === "DC 49: Winnipeg" ||
-                region.label === "DC 56: Oshawa" ||
-                region.label === "DC 06: Montreal" ||
-                region.label === "DC 26: Vancouver" ||
-                region.label === "DC 34: Calgary")
-            )
-              return;
+            headerCategories.forEach((category) => {
+              if (
+                category === "Wind (km/h)" &&
+                (region.label === "DC 56: Oshawa" ||
+                  region.label === "DC 06: Montreal" ||
+                  region.label === "DC 17: Brampton" ||
+                  region.label === "DC 26: Vancouver")
+              )
+                return;
+              if (
+                category === "Temperature" &&
+                (region.label === "DC 49: Winnipeg" ||
+                  region.label === "DC 56: Oshawa" ||
+                  region.label === "DC 06: Montreal" ||
+                  region.label === "DC 26: Vancouver" ||
+                  region.label === "DC 34: Calgary")
+              )
+                return;
 
-            const th = document.createElement("th");
-            th.textContent = i;
-            headerRow.appendChild(th);
-          });
+              const th = document.createElement("th");
+              th.textContent = category;
+              headerRow.appendChild(th);
+            });
 
-          thead.appendChild(headerRow);
-          table.appendChild(thead);
-          table.appendChild(tbody);
-          tableContainer.appendChild(table);
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
 
-          // creating export button component
-          const button = document.createElement("button");
-          button.className = "export-button";
-          button.innerText = "Export";
+            // Export button for this table
+            const button = document.createElement("button");
+            button.className = "export-button";
+            button.innerText = `Export ${region.cities[0].daysData[dayIndex].date}`;
 
-          button.onclick = function () {
-            exportTable(table, `${region.label}_weather_data.csv`);
-          };
+            button.onclick = function () {
+              exportTable(
+                table,
+                `${region.label}_${region.cities[0].daysData[dayIndex].date}_weather_data.csv`
+              );
+            };
 
-          tableContainer.appendChild(button);
+            tableContainer.appendChild(button);
 
-          // this is basically him iterating over each city inside the region we can use this here
-          region.cities
-            //.filter((city) => city.snow > 0 || city.wind > 0)
-            .forEach((city) => {
-              const cityContainer = document.createElement("div");
-              cityContainer.id = `city-${city.label}`;
-              // cityContainer.style.backgroundColor =
-              //   region.primaryBackgroundColour;
-              cityContainer.className = "city-container";
-              citiesContainer.appendChild(cityContainer);
+            // Populate table with data for this specific day
+            region.cities.forEach((city) => {
+              const dayData = city.daysData[dayIndex];
 
-              // add a red outline if there is an alert
-              if (city.alert.general) {
-                cityContainer.style.outline = "2px solid crimson";
-              }
-
-              // this is the label of the city card
-              const cityLabel = document.createElement("p");
-              cityLabel.innerText = `${city.label}`;
-              cityLabel.style.fontWeight = "bold";
-              cityLabel.style.textAlign = "center";
-              cityLabel.style.padding = "6px 0 6px 0";
-              cityLabel.style.borderBottom = "1px solid rgb(0, 0, 0, 0.2)";
-
-              // cityLabel.style.textDecoration = "underline";
-
-              cityContainer.appendChild(cityLabel);
-
-              // const cityDate = document.createElement("p");
-              // cityDate.innerText = `Date: ${city.data.date}`;
-              // cityContainer.appendChild(cityDate);
-
-              // this is the temperature row
-              const cityTemperature = document.createElement("p");
-              cityTemperature.innerText = `Temperature: ${city.data.temperature}°${city.units.temperature}`;
-              cityTemperature.style.padding = "0 12px 0 12px";
-              cityContainer.appendChild(cityTemperature);
-
-              // this is the city snow row
-              const citySnow = document.createElement("p");
-              citySnow.innerText = `Snow: ${city.data.snow} ${city.units.snow}`;
-              citySnow.style.padding = "0 12px 0 12px";
-              cityContainer.appendChild(citySnow);
-              if (city.alert.snow) {
-                citySnow.style.color = "red";
-              }
-
-              // this is city rain row
-              const cityRain = document.createElement("p");
-              cityRain.innerText = `Rain: ${city.data.rain} ${city.units.rain}`;
-              cityRain.style.padding = "0 12px 0 12px";
-              cityContainer.appendChild(cityRain);
-              if (city.alert.rain) {
-                cityRain.style.color = "red";
-              }
-
-              // this is city wind row
-              const cityWind = document.createElement("p");
-              cityWind.innerText = `Wind: ${city.data.wind} ${city.units.wind}`;
-              cityWind.style.padding = "0 12px 0 12px";
-              cityContainer.appendChild(cityWind);
-              if (city.alert.wind) {
-                cityWind.style.color = "red";
-              }
-
-              // TABLE CREATION
-              // table row creation
               const row = document.createElement("tr");
 
-              //table Elements creations
               const regionCell = document.createElement("td");
-              regionCell.textContent = `${city.label}`;
+              regionCell.textContent = city.label;
               row.appendChild(regionCell);
 
               if (
@@ -806,16 +813,16 @@
                 )
               ) {
                 const tempCell = document.createElement("td");
-                tempCell.textContent = `${city.data.temperature}°${city.units.temperature}`;
+                tempCell.textContent = `${dayData.temperature}°${city.units.temperature}`;
                 row.appendChild(tempCell);
               }
 
               const snowCell = document.createElement("td");
-              snowCell.textContent = `${city.data.snow}`;
+              snowCell.textContent = `${dayData.snow}`;
               row.appendChild(snowCell);
 
               const rainCell = document.createElement("td");
-              rainCell.textContent = `${city.data.rain}`;
+              rainCell.textContent = `${dayData.rain}`;
               row.appendChild(rainCell);
 
               if (
@@ -827,79 +834,37 @@
                 )
               ) {
                 const windCell = document.createElement("td");
-                windCell.textContent = `${city.data.wind}`;
+                windCell.textContent = `${dayData.wind}`;
                 row.appendChild(windCell);
               }
 
               const infoCell = document.createElement("td");
-              const snowVal = parseFloat(city.data.snow);
-              const rainVal = parseFloat(city.data.rain);
-              const tempVal = parseFloat(city.data.temperature);
+              const snowVal = parseFloat(dayData.snow);
+              const rainVal = parseFloat(dayData.rain);
 
-              // logic for what to put in the addiontal comment area
-
-              // Oshawa DC
-              if (region.label == "DC 56: Oshawa") {
-                if (city.label == "Picton" && snowVal > 0) {
-                  infoCell.textContent = "15 mins before first stop";
-                } else if (snowVal <= 3 && rainVal <= 3) {
-                  infoCell.textContent = "No changes";
-                } else if (
-                  (snowVal > 3 && snowVal <= 5) ||
-                  (rainVal > 3 && rainVal <= 5)
-                ) {
-                  infoCell.textContent = "15 mins before first stop";
-                } else if (
-                  (snowVal > 5 && snowVal <= 10) ||
-                  (rainVal > 5 && rainVal <= 10)
-                ) {
-                  infoCell.textContent =
-                    "15 mins before first stop + 15 mins between deliveries";
-                } else {
-                  infoCell.textContent =
-                    "30 mins before first stop + 15 mins between deliveries";
-                }
-              } else {
-                if (
-                  region.label == "DC 06: Montreal" ||
-                  region.label == "DC 26: Vancouver"
-                ) {
-                  infoCell.textContent = "";
-                } else if (snowVal <= 3) {
-                  infoCell.textContent = "No changes";
-                } else if (snowVal > 3 && snowVal <= 5) {
-                  infoCell.textContent = "15 mins before first stop";
-                } else if (snowVal > 5 && snowVal <= 10) {
-                  infoCell.textContent =
-                    "15 mins before first stop + 15 mins between deliveries";
-                } else {
-                  infoCell.textContent =
-                    "30 mins before first stop + 15 mins between deliveries";
-                }
-              }
+              infoCell.textContent = calculateAdditionalTime(
+                snowVal,
+                rainVal,
+                region.label,
+                city.label
+              );
 
               row.appendChild(infoCell);
               tbody.appendChild(row);
             });
+          }
         });
       })();
 
       function exportTable(table, filename) {
         var csv = [];
-
-        // gets the row of the table
         var rows = table.querySelectorAll("tr");
 
-        // basically go through all thw rows one by one
         for (var i = 0; i < rows.length; i++) {
           var row = [];
-
-          // fetch every collumn within the row
           var cols = rows[i].querySelectorAll("td, th");
 
-          // go through every single element of the rows by basically iterating over the cols
           for (var j = 0; j < cols.length; j++) {
-            // fetches the text in each cell and pushes it into the rows variable we made earlier
             var data = cols[j].innerText;
             row.push(data);
           }
@@ -908,8 +873,6 @@
         }
 
         var CSV_Final = csv.join("\n");
-
-        // all the stuff needed to download the file
         var a = document.createElement("a");
         var bom = "\ufeff";
         a.href =
