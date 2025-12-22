@@ -549,7 +549,7 @@
         ];
 
         // Calculate the day it is
-        const dayOfWeekTwoDaysFromNow = (new Date().getDay() + 2) % 7;
+        const dayOfWeekTwoDaysFromNow = (new Date().getDay() + 3) % 7;
 
         // The fetching of the API data from the website
         const regionsAPIData = await Promise.all(
@@ -572,12 +572,12 @@
                   const rawData = await res.json();
                   const cityData = {
                     date: new Date(
-                      rawData.longTerm[2].time.local
+                      rawData.longTerm[3].time.local
                     ).toLocaleDateString(),
-                    temperature: rawData.longTerm[2].day.temperature.value,
-                    snow: rawData.longTerm[2].snow.value,
-                    wind: rawData.longTerm[2].day.wind.speed,
-                    rain: rawData.longTerm[2].rain.value,
+                    temperature: rawData.longTerm[3].day.temperature.value,
+                    snow: rawData.longTerm[3].snow.value,
+                    wind: rawData.longTerm[3].day.wind.speed,
+                    rain: rawData.longTerm[3].rain.value,
                   };
                   const cityUnits = {
                     snow: rawData.display.unit.snow,
