@@ -78,6 +78,22 @@
       .export-button:hover {
         background-color: #333333;
       }
+      .copy-button {
+        background-color: #f5f5f0;
+        color: #333333;
+        border: 1px solid #d0d0d0;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: inline-block;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+      .copy-button:hover {
+        background-color: #e8e8e0;
+      }
     </style>
     <script>
       (async () => {
@@ -709,6 +725,8 @@
           pageContainer.appendChild(mainHeader);
 
           regionsData.forEach((region) => {
+            if (region.cities.length === 0) return; // Skip if no cities loaded
+
             const regionContainer = document.createElement("div");
             regionContainer.style.paddingBottom = "2rem";
             pageContainer.appendChild(regionContainer);
@@ -775,7 +793,7 @@
 
               const button = document.createElement("button");
               button.className = "export-button";
-              button.innerText = `Export ${region.cities[0].daysData[dayIndex].date}`;
+              button.innerText = `Export to CSV`;
               button.onclick = function () {
                 exportTable(
                   table,
@@ -784,7 +802,17 @@
               };
               tableContainer.appendChild(button);
 
+              const copyButton = document.createElement("button");
+              copyButton.className = "copy-button";
+              copyButton.innerText = `Copy to Clipboard`;
+              copyButton.onclick = function () {
+                copyTableToClipboard(table);
+              };
+              tableContainer.appendChild(copyButton);
+
               region.cities.forEach((city) => {
+                if (!city.daysData || !city.daysData[dayIndex]) return; // Safety check
+
                 const dayData = city.daysData[dayIndex];
 
                 // For DC 34: Calgary, check if city is enabled for this day of week
@@ -883,6 +911,102 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+      }
+
+      function copyTableToClipboard(table) {
+        // Create both plain text and HTML versions
+        var textRows = [];
+        var rows = table.querySelectorAll("tr");
+
+        // Build plain text version (tab-separated)
+        for (var i = 0; i < rows.length; i++) {
+          var row = [];
+          var cols = rows[i].querySelectorAll("td, th");
+          for (var j = 0; j < cols.length; j++) {
+            var data = cols[j].innerText;
+            row.push(data);
+          }
+          textRows.push(row.join("\t"));
+        }
+        var plainText = textRows.join("\n");
+
+        // Create HTML version with inline styles
+        var htmlTable =
+          '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: center;">';
+
+        for (var i = 0; i < rows.length; i++) {
+          htmlTable += "<tr>";
+          var cols = rows[i].querySelectorAll("td, th");
+
+          for (var j = 0; j < cols.length; j++) {
+            var cell = cols[j];
+            var isHeader = cell.tagName === "TH";
+            var cellStyle = "";
+
+            if (isHeader) {
+              cellStyle =
+                "background-color: #0036d6; color: white; font-weight: bold; padding: 10px 5px; border: 1px solid #dededf;";
+            } else {
+              cellStyle =
+                "background-color: #ffffff; color: #000000; padding: 5px; border: 1px solid #dededf;";
+            }
+
+            var tag = isHeader ? "th" : "td";
+            htmlTable +=
+              "<" +
+              tag +
+              ' style="' +
+              cellStyle +
+              '">' +
+              cell.innerText +
+              "</" +
+              tag +
+              ">";
+          }
+          htmlTable += "</tr>";
+        }
+        htmlTable += "</table>";
+
+        // Use the modern clipboard API with both formats
+        if (navigator.clipboard && window.ClipboardItem) {
+          const blob = new Blob([htmlTable], { type: "text/html" });
+          const textBlob = new Blob([plainText], { type: "text/plain" });
+          const item = new ClipboardItem({
+            "text/html": blob,
+            "text/plain": textBlob,
+          });
+
+          navigator.clipboard
+            .write([item])
+            .then(function () {
+              alert("Table with formatting copied to clipboard!");
+            })
+            .catch(function (err) {
+              console.error("Failed to copy: ", err);
+              // Fallback to plain text if HTML copy fails
+              fallbackCopy(plainText);
+            });
+        } else {
+          // Fallback for browsers that don't support ClipboardItem
+          fallbackCopy(plainText);
+        }
+      }
+
+      function fallbackCopy(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          alert("Table copied to clipboard (plain text)!");
+        } catch (err) {
+          console.error("Failed to copy: ", err);
+          alert("Failed to copy table to clipboard");
+        }
+        document.body.removeChild(textArea);
       }
     </script>
   </head>
