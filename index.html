@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Centralized Routing - Weather Tables 2.0</title>
+    <title>Weather Tables 2.0 for CR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -852,7 +852,22 @@
                 const row = document.createElement("tr");
 
                 const regionCell = document.createElement("td");
-                regionCell.textContent = city.label;
+                const cityLink = document.createElement("a");
+                cityLink.textContent = city.label;
+                cityLink.href = `https://www.theweathernetwork.com/en/city/${getCitySlug(
+                  city.label
+                )}/hourly`;
+                cityLink.target = "_blank";
+                cityLink.style.color = "#0036d6";
+                cityLink.style.textDecoration = "none";
+                cityLink.style.fontWeight = "500";
+                cityLink.onmouseover = function () {
+                  this.style.textDecoration = "underline";
+                };
+                cityLink.onmouseout = function () {
+                  this.style.textDecoration = "none";
+                };
+                regionCell.appendChild(cityLink);
                 row.appendChild(regionCell);
 
                 if (
@@ -914,6 +929,95 @@
           ).innerHTML = `<p style="padding: 20px; color: red;">Error: ${error.message}</p>`;
         }
       })();
+
+      // Function to convert city names to URL slugs
+      function getCitySlug(cityName) {
+        const cityMap = {
+          // DC 49: Winnipeg
+          Winnipeg: "ca/manitoba/winnipeg",
+          Brandon: "ca/manitoba/brandon",
+          Morden: "ca/manitoba/morden",
+          Thompson: "ca/manitoba/thompson",
+          Regina: "ca/saskatchewan/regina",
+          Kenora: "ca/ontario/kenora",
+          "Thunder Bay": "ca/ontario/thunder-bay",
+
+          // DC 56: Oshawa
+          Kingston: "ca/ontario/kingston",
+          Lindsay: "ca/ontario/lindsay",
+          Newmarket: "ca/ontario/newmarket",
+          Oshawa: "ca/ontario/oshawa",
+          Peterborough: "ca/ontario/peterborough",
+          Picton: "ca/ontario/picton",
+          Toronto: "ca/ontario/toronto",
+          Ottawa: "ca/ontario/ottawa",
+
+          // DC 06: Montreal
+          Montréal: "ca/quebec/montreal",
+          Québec: "ca/quebec/quebec",
+          "Mont-Tremblant": "ca/quebec/mont-tremblant",
+          "Val-d'Or": "ca/quebec/val-dor",
+          "Sept-Îles": "ca/quebec/sept-iles",
+          Magog: "ca/quebec/magog",
+          Saguenay: "ca/quebec/saguenay",
+          "Rouyn-Noranda": "ca/quebec/rouyn-noranda",
+
+          // DC 17: Brampton
+          Windsor: "ca/ontario/windsor",
+          London: "ca/ontario/london",
+          Hamilton: "ca/ontario/hamilton",
+          Brampton: "ca/ontario/brampton",
+          "Niagara Falls": "ca/ontario/niagara-falls",
+          Kitchener: "ca/ontario/kitchener",
+          Barrie: "ca/ontario/barrie",
+          "Sault Ste. Marie": "ca/ontario/sault-ste-marie",
+          Timmins: "ca/ontario/timmins",
+          Sudbury: "ca/ontario/sudbury",
+
+          // DC 26: Vancouver
+          "Prince George": "ca/british-columbia/prince-george",
+          Smithers: "ca/british-columbia/smithers",
+          "Prince Rupert": "ca/british-columbia/prince-rupert",
+          "Port Hardy": "ca/british-columbia/port-hardy",
+          Victoria: "ca/british-columbia/victoria",
+          Hope: "ca/british-columbia/hope",
+          Squamish: "ca/british-columbia/squamish",
+          Sechelt: "ca/british-columbia/sechelt",
+          Vancouver: "ca/british-columbia/vancouver",
+
+          // DC 34: Calgary
+          Calgary: "ca/alberta/calgary",
+          "Red Deer": "ca/alberta/red-deer",
+          Edmonton: "ca/alberta/edmonton",
+          Lethbridge: "ca/alberta/lethbridge",
+          "Medicine Hat": "ca/alberta/medicine-hat",
+          Lloydminster: "ca/alberta/lloydminster",
+          "Grande Prairie": "ca/alberta/grande-prairie",
+          "Fort McMurray": "ca/alberta/fort-mcmurray",
+          "Peace River": "ca/alberta/peace-river",
+          Kelowna: "ca/british-columbia/kelowna",
+          Golden: "ca/british-columbia/golden",
+          Kamloops: "ca/british-columbia/kamloops",
+          Vernon: "ca/british-columbia/vernon",
+          Revelstoke: "ca/british-columbia/revelstoke",
+          "Dawson Creek": "ca/british-columbia/dawson-creek",
+          Saskatoon: "ca/saskatchewan/saskatoon",
+          "Prince Albert": "ca/saskatchewan/prince-albert",
+          "North Battleford": "ca/saskatchewan/north-battleford",
+          Melfort: "ca/saskatchewan/melfort",
+          Drumheller: "ca/alberta/drumheller",
+          Fernie: "ca/british-columbia/fernie",
+          Bonnyville: "ca/alberta/bonnyville",
+          Kindersley: "ca/saskatchewan/kindersley",
+          Hinton: "ca/alberta/hinton",
+          Castlegar: "ca/british-columbia/castlegar",
+          Cardston: "ca/alberta/cardston",
+          Invermere: "ca/british-columbia/invermere",
+          Cranbrook: "ca/british-columbia/cranbrook",
+        };
+
+        return cityMap[cityName] || "";
+      }
 
       function exportTable(table, filename) {
         var csv = [];
