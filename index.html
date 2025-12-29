@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather Tables 2.0 - Multi-Day</title>
+    <title>Centralized Routing - Weather Tables 2.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,6 +27,25 @@
         margin: auto;
         max-width: 1180px;
         padding-bottom: 2rem;
+      }
+      .region-container {
+        margin-bottom: 40px;
+      }
+      .day-container {
+        background-color: #f9f9f9;
+        border: 2px solid #d0d0d0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      }
+      .day-container-header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #0036d6;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #0036d6;
       }
       .custom-weather-table {
         margin-top: 20px;
@@ -724,28 +743,36 @@
           mainHeader.style.marginTop = "20px";
           pageContainer.appendChild(mainHeader);
 
+          // Loop through each region
           regionsData.forEach((region) => {
-            if (region.cities.length === 0) return; // Skip if no cities loaded
+            if (region.cities.length === 0) return;
 
             const regionContainer = document.createElement("div");
-            regionContainer.style.paddingBottom = "2rem";
+            regionContainer.className = "region-container";
             pageContainer.appendChild(regionContainer);
 
             const regionHeader = document.createElement("h2");
             regionContainer.appendChild(regionHeader);
             regionHeader.innerText = region.label;
             regionHeader.style.borderBottom = `4px solid ${region.primaryBackgroundColour}`;
+            regionHeader.style.marginBottom = "20px";
 
             const numDays = region.cities[0].daysData.length;
 
+            // Create a day container for each day within this region
             for (let dayIndex = 0; dayIndex < numDays; dayIndex++) {
-              const tableContainer = document.createElement("div");
-              regionContainer.appendChild(tableContainer);
+              const dayContainer = document.createElement("div");
+              dayContainer.className = "day-container";
+              regionContainer.appendChild(dayContainer);
 
-              const dateHeader = document.createElement("div");
-              dateHeader.className = "table-date-header";
-              dateHeader.innerText = region.cities[0].daysData[dayIndex].date;
-              tableContainer.appendChild(dateHeader);
+              // Day header
+              const dayHeader = document.createElement("div");
+              dayHeader.className = "day-container-header";
+              dayHeader.innerText = region.cities[0].daysData[dayIndex].date;
+              dayContainer.appendChild(dayHeader);
+
+              const tableContainer = document.createElement("div");
+              dayContainer.appendChild(tableContainer);
 
               const table = document.createElement("table");
               table.className = "custom-weather-table";
@@ -811,7 +838,7 @@
               tableContainer.appendChild(copyButton);
 
               region.cities.forEach((city) => {
-                if (!city.daysData || !city.daysData[dayIndex]) return; // Safety check
+                if (!city.daysData || !city.daysData[dayIndex]) return;
 
                 const dayData = city.daysData[dayIndex];
 
