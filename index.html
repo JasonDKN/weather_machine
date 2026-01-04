@@ -796,9 +796,9 @@
                 return "15 mins before first stop + 15 mins between deliveries";
               } else if (snowVal > 10) {
                 return "30 mins before first stop + 15 mins between deliveries";
-              } else if (temperatureVal <= -10) {
+              } else if (temperatureVal <= -10 && temperatureVal > -18) {
                 return "10 mins before first stop";
-              } else if (temperatureVal <= -18) {
+              } else if (temperatureVal <= -18 && temperatureVal > -25) {
                 return "20 mins before first stop";
               } else if (temperatureVal <= -25) {
                 return "30 mins before first stop";
