@@ -657,7 +657,7 @@
 
           // Configuration
           const START_DAY_INDEX = 2;
-          const NUM_DAYS_TO_DISPLAY = 4;
+          const NUM_DAYS_TO_DISPLAY = 3;
 
           console.log("Starting data fetch...");
 
@@ -759,9 +759,11 @@
           function calculateAdditionalTime(
             snowVal,
             rainVal,
+            temperatureVal,
             regionLabel,
             cityLabel
           ) {
+            // Oshawa Logic for Additional Time
             if (regionLabel === "DC 56: Oshawa") {
               if (cityLabel === "Picton" && snowVal > 0) {
                 return "15 mins before first stop";
@@ -780,11 +782,22 @@
               } else {
                 return "30 mins before first stop + 15 mins between deliveries";
               }
+              // Montreal Temperature Threshold Logic for additional time
+            } else if (regionLabel === "DC 06: Montreal") {
+              if (temperatureVal <= -10) {
+                return "10 mins before first stop";
+              } else if (temperatureVal <= -18) {
+                return "20 mins before first stop";
+              } else if (temperatureVal <= -25) {
+                return "30 mins before first stop";
+              }
+              // Logic to have null comments for all other MTL and VAN weather conditions
             } else if (
               regionLabel === "DC 06: Montreal" ||
               regionLabel === "DC 26: Vancouver"
             ) {
               return "";
+              // Logic for additional time for all other DCs
             } else {
               if (snowVal <= 3) {
                 return "No changes";
@@ -1027,6 +1040,7 @@
                 infoCell.textContent = calculateAdditionalTime(
                   snowVal,
                   rainVal,
+                  dayData.temperature,
                   region.label,
                   city.label
                 );
