@@ -784,18 +784,29 @@
               }
               // Montreal Temperature Threshold Logic for additional time
             } else if (regionLabel === "DC 06: Montreal") {
-              if (temperatureVal <= -10) {
+              if (
+                (snowVal > 3 && snowVal <= 5) ||
+                (rainVal > 3 && rainVal <= 5)
+              ) {
+                return "15 mins before first stop";
+              } else if (
+                (snowVal > 5 && snowVal <= 10) ||
+                (rainVal > 5 && rainVal <= 10)
+              ) {
+                return "15 mins before first stop + 15 mins between deliveries";
+              } else if (snowVal > 10) {
+                return "30 mins before first stop + 15 mins between deliveries";
+              } else if (temperatureVal <= -10) {
                 return "10 mins before first stop";
               } else if (temperatureVal <= -18) {
                 return "20 mins before first stop";
               } else if (temperatureVal <= -25) {
                 return "30 mins before first stop";
+              } else {
+                return "No changes";
               }
-              // Logic to have null comments for all other MTL and VAN weather conditions
-            } else if (
-              regionLabel === "DC 06: Montreal" ||
-              regionLabel === "DC 26: Vancouver"
-            ) {
+              // Logic to have null comments for Vancouver weather tables
+            } else if (regionLabel === "DC 26: Vancouver") {
               return "";
               // Logic for additional time for all other DCs
             } else {
@@ -808,6 +819,18 @@
               } else {
                 return "30 mins before first stop + 15 mins between deliveries";
               }
+            }
+          }
+
+          function calculateAdditionalTimeMTL(
+            snowVal,
+            rainVal,
+            temperatureVal,
+            regionLabel,
+            cityLabel
+          ) {
+            if (regionLabel === "DC 06: Montreal") {
+              return "";
             }
           }
 
@@ -917,6 +940,7 @@
                 "Snow (cm)",
                 "Rain (mm)",
                 "Wind (km/h)",
+                "Guidelines",
                 "Additional Time",
               ];
 
@@ -935,6 +959,15 @@
                     region.label === "DC 56: Oshawa" ||
                     region.label === "DC 26: Vancouver" ||
                     region.label === "DC 34: Calgary")
+                )
+                  return;
+                if (
+                  category === "Guidelines" &&
+                  (region.label === "DC 49: Winnipeg" ||
+                    region.label === "DC 56: Oshawa" ||
+                    region.label === "DC 26: Vancouver" ||
+                    region.label === "DC 34: Calgary" ||
+                    region.label === "DC 17: Brampton")
                 )
                   return;
 
@@ -1034,19 +1067,53 @@
                   row.appendChild(windCell);
                 }
 
-                const infoCell = document.createElement("td");
                 const snowVal = parseFloat(dayData.snow);
                 const rainVal = parseFloat(dayData.rain);
-                infoCell.textContent = calculateAdditionalTime(
-                  snowVal,
-                  rainVal,
-                  dayData.temperature,
-                  region.label,
-                  city.label
-                );
-                row.appendChild(infoCell);
 
-                tbody.appendChild(row);
+                if (
+                  !(
+                    region.label === "DC 56: Oshawa" ||
+                    region.label === "DC 17: Brampton" ||
+                    region.label === "DC 26: Vancouver" ||
+                    region.label === "DC 34: Calgary" ||
+                    region.label === "DC 49: Winnipeg"
+                  )
+                ) {
+                  const guidelineCell = document.createElement("td");
+                  guidelineCell.textContent = calculateAdditionalTime(
+                    snowVal,
+                    rainVal,
+                    dayData.temperature,
+                    region.label,
+                    city.label
+                  );
+                  row.appendChild(guidelineCell);
+                }
+
+                const infoCell = document.createElement("td");
+                if (!(region.label === "DC 06: Montreal")) {
+                  infoCell.textContent = calculateAdditionalTime(
+                    snowVal,
+                    rainVal,
+                    dayData.temperature,
+                    region.label,
+                    city.label
+                  );
+                  row.appendChild(infoCell);
+
+                  tbody.appendChild(row);
+                } else {
+                  infoCell.textContent = calculateAdditionalTimeMTL(
+                    snowVal,
+                    rainVal,
+                    dayData.temperature,
+                    region.label,
+                    city.label
+                  );
+                  row.appendChild(infoCell);
+
+                  tbody.appendChild(row);
+                }
               });
             }
           });
