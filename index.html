@@ -784,15 +784,9 @@
               }
               // Montreal Temperature Threshold Logic for additional time
             } else if (regionLabel === "DC 06: Montreal") {
-              if (
-                (snowVal > 3 && snowVal <= 5) ||
-                (rainVal > 3 && rainVal <= 5)
-              ) {
+              if (snowVal > 3 && snowVal <= 5) {
                 return "15 mins before first stop";
-              } else if (
-                (snowVal > 5 && snowVal <= 10) ||
-                (rainVal > 5 && rainVal <= 10)
-              ) {
+              } else if (snowVal > 5 && snowVal <= 10) {
                 return "15 mins before first stop + 15 mins between deliveries";
               } else if (snowVal > 10) {
                 return "30 mins before first stop + 15 mins between deliveries";
