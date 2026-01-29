@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -12,8 +12,17 @@
     />
     <style>
       html {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Oxygen,
+          Ubuntu,
+          Cantarell,
+          "Open Sans",
+          "Helvetica Neue",
           sans-serif;
         font-weight: 400;
       }
@@ -678,7 +687,7 @@
                     ) {
                       if (rawData.longTerm[i]) {
                         const dateObj = new Date(
-                          rawData.longTerm[i].time.local
+                          rawData.longTerm[i].time.local,
                         );
                         const dayOfWeek = dateObj.getDay();
 
@@ -711,14 +720,14 @@
                     console.error(`Error fetching ${city.label}:`, error);
                     return null;
                   }
-                })
+                }),
               );
 
               return {
                 ...region,
                 cities: citiesAPIData.filter((c) => c !== null),
               };
-            })
+            }),
           );
 
           console.log("Data fetched:", regionsAPIData);
@@ -761,7 +770,7 @@
             rainVal,
             temperatureVal,
             regionLabel,
-            cityLabel
+            cityLabel,
           ) {
             // Oshawa Logic for Additional Time
             if (regionLabel === "DC 56: Oshawa") {
@@ -802,6 +811,19 @@
               // Logic to have null comments for Vancouver weather tables
             } else if (regionLabel === "DC 26: Vancouver") {
               return "";
+              // Logic for Brampton including request to add 15 mins of offload time to every delivery when temperature drops below -10C
+              // } else if (regionLabel === "DC 17: Brampton") {
+              //   if (snowVal > 3 && snowVal <= 5) {
+              //     return "15 mins before first stop";
+              //   } else if (snowVal > 5 && snowVal <= 10) {
+              //     return "15 mins before first stop + 15 mins between deliveries";
+              //   } else if (snowVal > 10) {
+              //     return "30 mins before first stop + 15 mins between deliveries";
+              //   } else if (temperatureVal <= -10) {
+              //     return "Add 15 mins of offload time to every delivery";
+              //   } else {
+              //     return "No changes";
+              //   }
               // Logic for additional time for all other DCs
             } else {
               if (snowVal <= 3) {
@@ -821,10 +843,28 @@
             rainVal,
             temperatureVal,
             regionLabel,
-            cityLabel
+            cityLabel,
           ) {
             if (regionLabel === "DC 06: Montreal") {
               return "";
+            }
+          }
+
+          function calculateAdditionalOffloadTimeBRP(
+            temperatureVal,
+            regionLabel,
+            cityLabel,
+          ) {
+            if (regionLabel === "DC 17: Brampton") {
+              if (temperatureVal <= -10 && temperatureVal > -20) {
+                return "15 minutes";
+              } else if (temperatureVal <= -20 && temperatureVal > -30) {
+                return "20 minutes";
+              } else if (temperatureVal <= -30) {
+                return "25 minutes";
+              } else {
+                return "No changes";
+              }
             }
           }
 
@@ -936,6 +976,7 @@
                 "Wind (km/h)",
                 "Guidelines",
                 "Additional Time",
+                "Added Offload Time to Each Stop",
               ];
 
               headerCategories.forEach((category) => {
@@ -964,6 +1005,15 @@
                     region.label === "DC 17: Brampton")
                 )
                   return;
+                if (
+                  category === "Added Offload Time to Each Stop" &&
+                  (region.label === "DC 49: Winnipeg" ||
+                    region.label === "DC 56: Oshawa" ||
+                    region.label === "DC 26: Vancouver" ||
+                    region.label === "DC 34: Calgary" ||
+                    region.label === "DC 06: Montreal")
+                )
+                  return;
 
                 const th = document.createElement("th");
                 th.textContent = category;
@@ -981,7 +1031,7 @@
               button.onclick = function () {
                 exportTable(
                   table,
-                  `${region.label}_${region.cities[0].daysData[dayIndex].date}_weather_data.csv`
+                  `${region.label}_${region.cities[0].daysData[dayIndex].date}_weather_data.csv`,
                 );
               };
               tableContainer.appendChild(button);
@@ -1012,7 +1062,7 @@
                 const cityLink = document.createElement("a");
                 cityLink.textContent = city.label;
                 cityLink.href = `https://www.theweathernetwork.com/en/city/${getCitySlug(
-                  city.label
+                  city.label,
                 )}/hourly`;
                 cityLink.target = "_blank";
                 cityLink.style.color = "#0036d6";
@@ -1079,7 +1129,7 @@
                     rainVal,
                     dayData.temperature,
                     region.label,
-                    city.label
+                    city.label,
                   );
                   row.appendChild(guidelineCell);
                 }
@@ -1091,7 +1141,7 @@
                     rainVal,
                     dayData.temperature,
                     region.label,
-                    city.label
+                    city.label,
                   );
                   row.appendChild(infoCell);
 
@@ -1102,12 +1152,23 @@
                     rainVal,
                     dayData.temperature,
                     region.label,
-                    city.label
+                    city.label,
                   );
                   row.appendChild(infoCell);
-
-                  tbody.appendChild(row);
                 }
+
+                if (region.label === "DC 17: Brampton") {
+                  const addedOffloadTimeCell = document.createElement("td");
+                  addedOffloadTimeCell.textContent =
+                    calculateAdditionalOffloadTimeBRP(
+                      dayData.temperature,
+                      region.label,
+                      city.label,
+                    );
+                  row.appendChild(addedOffloadTimeCell);
+                }
+
+                tbody.appendChild(row);
               });
             }
           });
@@ -1115,9 +1176,8 @@
           console.log("Page rendered successfully");
         } catch (error) {
           console.error("Error:", error);
-          document.querySelector(
-            "#page-container"
-          ).innerHTML = `<p style="padding: 20px; color: red;">Error: ${error.message}</p>`;
+          document.querySelector("#page-container").innerHTML =
+            `<p style="padding: 20px; color: red;">Error: ${error.message}</p>`;
         }
       })();
 
