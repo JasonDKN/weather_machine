@@ -694,8 +694,10 @@
                         daysData.push({
                           date: dateObj.toLocaleDateString(),
                           dayOfWeek: dayOfWeek,
-                          temperature:
+                          temperatureDay:
                             rawData.longTerm[i].day.temperature.value,
+                          temperatureNight:
+                            rawData.longTerm[i].night.temperature.value,
                           snow: rawData.longTerm[i].snow.value,
                           wind: rawData.longTerm[i].day.wind.speed,
                           rain: rawData.longTerm[i].rain.value,
@@ -970,7 +972,8 @@
               const headerRow = document.createElement("tr");
               const headerCategories = [
                 "Region",
-                "Temperature",
+                "Temperature: Day",
+                "Temperature: Night",
                 "Snow (cm)",
                 "Rain (mm)",
                 "Wind (km/h)",
@@ -989,11 +992,17 @@
                 )
                   return;
                 if (
-                  category === "Temperature" &&
+                  category === "Temperature: Day" &&
                   (region.label === "DC 49: Winnipeg" ||
                     region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver" ||
-                    region.label === "DC 34: Calgary")
+                    region.label === "DC 26: Vancouver")
+                )
+                  return;
+                if (
+                  category === "Temperature: Night" &&
+                  (region.label === "DC 49: Winnipeg" ||
+                    region.label === "DC 56: Oshawa" ||
+                    region.label === "DC 26: Vancouver")
                 )
                   return;
                 if (
@@ -1081,12 +1090,23 @@
                   !(
                     region.label === "DC 49: Winnipeg" ||
                     region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver" ||
-                    region.label === "DC 34: Calgary"
+                    region.label === "DC 26: Vancouver"
                   )
                 ) {
                   const tempCell = document.createElement("td");
-                  tempCell.textContent = `${dayData.temperature}°${city.units.temperature}`;
+                  tempCell.textContent = `${dayData.temperatureDay}°${city.units.temperature}`;
+                  row.appendChild(tempCell);
+                }
+
+                if (
+                  !(
+                    region.label === "DC 49: Winnipeg" ||
+                    region.label === "DC 56: Oshawa" ||
+                    region.label === "DC 26: Vancouver"
+                  )
+                ) {
+                  const tempCell = document.createElement("td");
+                  tempCell.textContent = `${dayData.temperatureNight}°${city.units.temperature}`;
                   row.appendChild(tempCell);
                 }
 
