@@ -813,19 +813,6 @@
               // Logic to have null comments for Vancouver weather tables
             } else if (regionLabel === "DC 26: Vancouver") {
               return "";
-              // Logic for Brampton including request to add 15 mins of offload time to every delivery when temperature drops below -10C
-              // } else if (regionLabel === "DC 17: Brampton") {
-              //   if (snowVal > 3 && snowVal <= 5) {
-              //     return "15 mins before first stop";
-              //   } else if (snowVal > 5 && snowVal <= 10) {
-              //     return "15 mins before first stop + 15 mins between deliveries";
-              //   } else if (snowVal > 10) {
-              //     return "30 mins before first stop + 15 mins between deliveries";
-              //   } else if (temperatureVal <= -10) {
-              //     return "Add 15 mins of offload time to every delivery";
-              //   } else {
-              //     return "No changes";
-              //   }
               // Logic for additional time for all other DCs
             } else {
               if (snowVal <= 3) {
@@ -852,7 +839,7 @@
             }
           }
 
-          function calculateAdditionalOffloadTimeBRP(
+          function calculateAdditionalOffloadTime(
             temperatureVal,
             regionLabel,
             cityLabel,
@@ -864,6 +851,13 @@
                 return "20 minutes";
               } else if (temperatureVal <= -30) {
                 return "25 minutes";
+              } else {
+                return "No changes";
+              }
+            }
+            if (regionLabel === "DC 34: Calgary") {
+              if (temperatureVal <= -20) {
+                return "10 minutes";
               } else {
                 return "No changes";
               }
@@ -1019,7 +1013,6 @@
                   (region.label === "DC 49: Winnipeg" ||
                     region.label === "DC 56: Oshawa" ||
                     region.label === "DC 26: Vancouver" ||
-                    region.label === "DC 34: Calgary" ||
                     region.label === "DC 06: Montreal")
                 )
                   return;
@@ -1177,10 +1170,13 @@
                   row.appendChild(infoCell);
                 }
 
-                if (region.label === "DC 17: Brampton") {
+                if (
+                  region.label === "DC 17: Brampton" ||
+                  region.label === "DC 34: Calgary"
+                ) {
                   const addedOffloadTimeCell = document.createElement("td");
                   addedOffloadTimeCell.textContent =
-                    calculateAdditionalOffloadTimeBRP(
+                    calculateAdditionalOffloadTime(
                       dayData.temperature,
                       region.label,
                       city.label,
