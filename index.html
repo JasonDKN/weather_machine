@@ -1140,7 +1140,7 @@
                   guidelineCell.textContent = calculateAdditionalTime(
                     snowVal,
                     rainVal,
-                    dayData.temperature,
+                    dayData.temperatureDay,
                     region.label,
                     city.label,
                   );
@@ -1152,7 +1152,7 @@
                   infoCell.textContent = calculateAdditionalTime(
                     snowVal,
                     rainVal,
-                    dayData.temperature,
+                    dayData.temperatureDay,
                     region.label,
                     city.label,
                   );
@@ -1163,7 +1163,7 @@
                   infoCell.textContent = calculateAdditionalTimeMTL(
                     snowVal,
                     rainVal,
-                    dayData.temperature,
+                    dayData.temperatureDay,
                     region.label,
                     city.label,
                   );
@@ -1177,7 +1177,7 @@
                   const addedOffloadTimeCell = document.createElement("td");
                   addedOffloadTimeCell.textContent =
                     calculateAdditionalOffloadTime(
-                      dayData.temperature,
+                      dayData.temperatureDay,
                       region.label,
                       city.label,
                     );
