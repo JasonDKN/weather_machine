@@ -132,20 +132,21 @@
         font-family: Arial, sans-serif;
       }
       .custom-weather-table th {
-        border: 1px solid #dededf;
+        border: 1px solid #636363;
         background-color: #0036d6;
         text-align: center;
         color: white;
         padding: 10px 5px;
       }
       .custom-weather-table td {
-        border: 1px solid #dededf;
+        border: 1px solid #636363;
         background-color: #ffffff;
         text-align: center;
         color: #000000;
         padding: 5px;
         vertical-align: top;
       }
+
       .table-date-header {
         font-size: 18px;
         font-weight: bold;
@@ -691,6 +692,8 @@
                         );
                         const dayOfWeek = dateObj.getDay();
 
+                        // console.log(rawData.longTerm[i]);
+
                         daysData.push({
                           date: dateObj.toLocaleDateString(),
                           dayOfWeek: dayOfWeek,
@@ -698,6 +701,8 @@
                             rawData.longTerm[i].day.temperature.value,
                           temperatureNight:
                             rawData.longTerm[i].night.temperature.value,
+                          snowDay: rawData.longTerm[i].day.snow.value,
+                          snowNight: rawData.longTerm[i].night.snow.value,
                           snow: rawData.longTerm[i].snow.value,
                           wind: rawData.longTerm[i].day.wind.speed,
                           rain: rawData.longTerm[i].rain.value,
@@ -924,6 +929,13 @@
             }
           });
 
+          // Helper function to determine column type
+          function getColumnType(category, regionLabel) {
+            if (category.includes("Temperature")) return "temp";
+            if (category.includes("Snow")) return "snow";
+            return "default";
+          }
+
           // Loop through each region
           regionsData.forEach((region) => {
             if (region.cities.length === 0) return;
@@ -968,7 +980,9 @@
                 "Region",
                 "Temperature: Day",
                 "Temperature: Night",
-                "Snow (cm)",
+                "Snow: Day (cm)",
+                "Snow: Night (cm)",
+                "Total Snow (cm)",
                 "Rain (mm)",
                 "Wind (km/h)",
                 "Guidelines",
@@ -1019,6 +1033,7 @@
 
                 const th = document.createElement("th");
                 th.textContent = category;
+
                 headerRow.appendChild(th);
               });
 
@@ -1086,9 +1101,10 @@
                     region.label === "DC 26: Vancouver"
                   )
                 ) {
-                  const tempCell = document.createElement("td");
-                  tempCell.textContent = `${dayData.temperatureDay}°${city.units.temperature}`;
-                  row.appendChild(tempCell);
+                  const tempDayCell = document.createElement("td");
+                  tempDayCell.className = "temp-column";
+                  tempDayCell.textContent = `${dayData.temperatureDay}°${city.units.temperature}`;
+                  row.appendChild(tempDayCell);
                 }
 
                 if (
@@ -1098,12 +1114,24 @@
                     region.label === "DC 26: Vancouver"
                   )
                 ) {
-                  const tempCell = document.createElement("td");
-                  tempCell.textContent = `${dayData.temperatureNight}°${city.units.temperature}`;
-                  row.appendChild(tempCell);
+                  const tempNightCell = document.createElement("td");
+                  tempNightCell.className = "temp-column";
+                  tempNightCell.textContent = `${dayData.temperatureNight}°${city.units.temperature}`;
+                  row.appendChild(tempNightCell);
                 }
 
+                const snowDayCell = document.createElement("td");
+                snowDayCell.className = "snow-column";
+                snowDayCell.textContent = `${dayData.snowDay}`;
+                row.appendChild(snowDayCell);
+
+                const snowNightCell = document.createElement("td");
+                snowNightCell.className = "snow-column";
+                snowNightCell.textContent = `${dayData.snowNight}`;
+                row.appendChild(snowNightCell);
+
                 const snowCell = document.createElement("td");
+                snowCell.className = "snow-column";
                 snowCell.textContent = `${dayData.snow}`;
                 row.appendChild(snowCell);
 
@@ -1339,14 +1367,12 @@
           for (var j = 0; j < cols.length; j++) {
             var cell = cols[j];
             var isHeader = cell.tagName === "TH";
-            var cellStyle = "";
+            var cellStyle = "border: 1px solid #dededf; padding: 5px;";
 
+            // Add header styling
             if (isHeader) {
-              cellStyle =
-                "background-color: #0036d6; color: white; font-weight: bold; padding: 10px 5px; border: 1px solid #dededf;";
-            } else {
-              cellStyle =
-                "background-color: #ffffff; color: #000000; padding: 5px; border: 1px solid #dededf;";
+              cellStyle +=
+                " background-color: #0036d6; color: white; font-weight: bold;";
             }
 
             var tag = isHeader ? "th" : "td";
