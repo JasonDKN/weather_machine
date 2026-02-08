@@ -137,6 +137,7 @@
         text-align: center;
         color: white;
         padding: 10px 5px;
+        vertical-align: middle;
       }
       .custom-weather-table td {
         border: 1px solid #636363;
@@ -144,7 +145,7 @@
         text-align: center;
         color: #000000;
         padding: 5px;
-        vertical-align: top;
+        vertical-align: middle;
       }
 
       .table-date-header {
@@ -1520,7 +1521,8 @@
           for (var j = 0; j < cols.length; j++) {
             var cell = cols[j];
             var isHeader = cell.tagName === "TH";
-            var cellStyle = "border: 1px solid #636363; padding: 5px;";
+            var cellStyle =
+              "border: 1px solid #636363; padding: 5px; text-align: center; vertical-align: middle;";
 
             // Add header styling
             if (isHeader) {
