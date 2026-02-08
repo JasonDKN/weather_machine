@@ -1512,7 +1512,7 @@
 
         // Create HTML version with inline styles
         var htmlTable =
-          '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif; text-align: center;">';
+          '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; font-family: Arial, sans-serif;">';
 
         for (var i = 0; i < rows.length; i++) {
           htmlTable += "<tr>";
@@ -1540,7 +1540,8 @@
             }
 
             var tag = isHeader ? "th" : "td";
-            var attrs = ' style="' + cellStyle + '"';
+            var attrs =
+              ' align="center" valign="middle" style="' + cellStyle + '"';
 
             // Add colspan if present
             if (cell.colSpan && cell.colSpan > 1) {
