@@ -975,69 +975,192 @@
               const thead = document.createElement("thead");
               const tbody = document.createElement("tbody");
 
-              const headerRow = document.createElement("tr");
-              const headerCategories = [
-                "Region",
-                "Temperature: Day",
-                "Temperature: Night",
-                "Snow: Day (cm)",
-                "Snow: Night (cm)",
-                "Total Snow (cm)",
-                "Rain (mm)",
-                "Wind (km/h)",
-                "Guidelines",
-                "Additional Time",
-                "Added Offload Time to Each Stop",
-              ];
+              // Main header row
+              const mainHeaderRow = document.createElement("tr");
 
-              headerCategories.forEach((category) => {
-                if (
-                  category === "Wind (km/h)" &&
-                  (region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 06: Montreal" ||
-                    region.label === "DC 17: Brampton" ||
-                    region.label === "DC 26: Vancouver")
-                )
-                  return;
-                if (
-                  category === "Temperature: Day" &&
-                  (region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver")
-                )
-                  return;
-                if (
-                  category === "Temperature: Night" &&
-                  (region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver")
-                )
-                  return;
-                if (
-                  category === "Guidelines" &&
-                  (region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver" ||
-                    region.label === "DC 34: Calgary" ||
-                    region.label === "DC 17: Brampton")
-                )
-                  return;
-                if (
-                  category === "Added Offload Time to Each Stop" &&
-                  (region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
-                    region.label === "DC 26: Vancouver" ||
-                    region.label === "DC 06: Montreal")
-                )
-                  return;
+              // Region column
+              const regionHeader = document.createElement("th");
+              regionHeader.textContent = "Region";
+              regionHeader.rowSpan = 2;
+              regionHeader.style.backgroundColor = "#0036d6";
+              regionHeader.setAttribute("data-color", "#0036d6");
+              mainHeaderRow.appendChild(regionHeader);
 
-                const th = document.createElement("th");
-                th.textContent = category;
+              // Temperature main header (only if temperature columns are shown)
+              const showTemp = !(
+                region.label === "DC 49: Winnipeg" ||
+                region.label === "DC 56: Oshawa" ||
+                region.label === "DC 26: Vancouver"
+              );
 
-                headerRow.appendChild(th);
-              });
+              if (showTemp) {
+                const tempHeader = document.createElement("th");
+                tempHeader.textContent = "Temperature";
+                tempHeader.colSpan = 2;
+                tempHeader.style.backgroundColor = "#e74c3c";
+                tempHeader.setAttribute("data-color", "#e74c3c");
+                mainHeaderRow.appendChild(tempHeader);
+              }
 
-              thead.appendChild(headerRow);
+              // Snow main header
+              const snowHeader = document.createElement("th");
+              snowHeader.textContent = "Snow (cm)";
+              snowHeader.colSpan = 3;
+              snowHeader.style.backgroundColor = "#3498db";
+              snowHeader.setAttribute("data-color", "#3498db");
+              mainHeaderRow.appendChild(snowHeader);
+
+              // Rain column
+              const rainHeader = document.createElement("th");
+              rainHeader.textContent = "Rain (mm)";
+              rainHeader.rowSpan = 2;
+              rainHeader.style.backgroundColor = "#5dade2";
+              rainHeader.setAttribute("data-color", "#5dade2");
+              mainHeaderRow.appendChild(rainHeader);
+
+              // Wind column (conditional)
+              const showWind = !(
+                region.label === "DC 56: Oshawa" ||
+                region.label === "DC 06: Montreal" ||
+                region.label === "DC 17: Brampton" ||
+                region.label === "DC 26: Vancouver"
+              );
+
+              if (showWind) {
+                const windHeader = document.createElement("th");
+                windHeader.textContent = "Wind (km/h)";
+                windHeader.rowSpan = 2;
+                windHeader.style.backgroundColor = "#95a5a6";
+                windHeader.setAttribute("data-color", "#95a5a6");
+                mainHeaderRow.appendChild(windHeader);
+              }
+
+              // Guidelines column (conditional - only standalone for non-Montreal regions that need it)
+              const showGuidelines = !(
+                region.label === "DC 49: Winnipeg" ||
+                region.label === "DC 56: Oshawa" ||
+                region.label === "DC 26: Vancouver" ||
+                region.label === "DC 34: Calgary" ||
+                region.label === "DC 17: Brampton" ||
+                region.label === "DC 06: Montreal"
+              );
+
+              if (showGuidelines) {
+                const guidelinesHeader = document.createElement("th");
+                guidelinesHeader.textContent = "Guidelines";
+                guidelinesHeader.rowSpan = 2;
+                guidelinesHeader.style.backgroundColor = "#9b59b6";
+                guidelinesHeader.setAttribute("data-color", "#9b59b6");
+                mainHeaderRow.appendChild(guidelinesHeader);
+              }
+
+              // Additional Time header logic
+              // Calgary & Brampton: "Additional Time" with sub-headers "Drive Time" and "Offload Time"
+              // Montreal: "Additional Time" with sub-headers "Guidelines" and "Revisions"
+              // Winnipeg, Oshawa, Vancouver: "Additional Time" with no sub-headers (rowSpan 2)
+
+              const isCalgaryOrBrampton =
+                region.label === "DC 17: Brampton" ||
+                region.label === "DC 34: Calgary";
+              const isMontreal = region.label === "DC 06: Montreal";
+              const isSimpleAdditionalTime =
+                region.label === "DC 49: Winnipeg" ||
+                region.label === "DC 56: Oshawa" ||
+                region.label === "DC 26: Vancouver";
+
+              if (isCalgaryOrBrampton) {
+                // Calgary and Brampton: Drive Time + Offload Time
+                const additionalTimeHeader = document.createElement("th");
+                additionalTimeHeader.textContent = "Additional Time";
+                additionalTimeHeader.colSpan = 2;
+                additionalTimeHeader.style.backgroundColor = "#27ae60";
+                additionalTimeHeader.setAttribute("data-color", "#27ae60");
+                mainHeaderRow.appendChild(additionalTimeHeader);
+              } else if (isMontreal) {
+                // Montreal: Guidelines + Revisions
+                const additionalTimeHeader = document.createElement("th");
+                additionalTimeHeader.textContent = "Additional Time";
+                additionalTimeHeader.colSpan = 2;
+                additionalTimeHeader.style.backgroundColor = "#9b59b6";
+                additionalTimeHeader.setAttribute("data-color", "#9b59b6");
+                mainHeaderRow.appendChild(additionalTimeHeader);
+              } else if (isSimpleAdditionalTime) {
+                // Winnipeg, Oshawa, Vancouver: Single column with no sub-headers
+                const additionalTimeHeader = document.createElement("th");
+                additionalTimeHeader.textContent = "Additional Time";
+                additionalTimeHeader.rowSpan = 2;
+                additionalTimeHeader.style.backgroundColor = "#27ae60";
+                additionalTimeHeader.setAttribute("data-color", "#27ae60");
+                mainHeaderRow.appendChild(additionalTimeHeader);
+              }
+
+              thead.appendChild(mainHeaderRow);
+
+              // Sub-header row
+              const subHeaderRow = document.createElement("tr");
+
+              // Temperature sub-headers
+              if (showTemp) {
+                const tempDayHeader = document.createElement("th");
+                tempDayHeader.textContent = "Day";
+                tempDayHeader.style.backgroundColor = "#ec7063";
+                tempDayHeader.setAttribute("data-color", "#ec7063");
+                subHeaderRow.appendChild(tempDayHeader);
+
+                const tempNightHeader = document.createElement("th");
+                tempNightHeader.textContent = "Night";
+                tempNightHeader.style.backgroundColor = "#f1948a";
+                tempNightHeader.setAttribute("data-color", "#f1948a");
+                subHeaderRow.appendChild(tempNightHeader);
+              }
+
+              // Snow sub-headers
+              const snowDayHeader = document.createElement("th");
+              snowDayHeader.textContent = "Day";
+              snowDayHeader.style.backgroundColor = "#5dade2";
+              snowDayHeader.setAttribute("data-color", "#5dade2");
+              subHeaderRow.appendChild(snowDayHeader);
+
+              const snowNightHeader = document.createElement("th");
+              snowNightHeader.textContent = "Night";
+              snowNightHeader.style.backgroundColor = "#85c1e9";
+              snowNightHeader.setAttribute("data-color", "#85c1e9");
+              subHeaderRow.appendChild(snowNightHeader);
+
+              const snowTotalHeader = document.createElement("th");
+              snowTotalHeader.textContent = "Total";
+              snowTotalHeader.style.backgroundColor = "#aed6f1";
+              snowTotalHeader.setAttribute("data-color", "#aed6f1");
+              subHeaderRow.appendChild(snowTotalHeader);
+
+              // Additional Time sub-headers (only for Calgary, Brampton, and Montreal)
+              if (isCalgaryOrBrampton) {
+                const driveTimeHeader = document.createElement("th");
+                driveTimeHeader.textContent = "Drive Time";
+                driveTimeHeader.style.backgroundColor = "#52be80";
+                driveTimeHeader.setAttribute("data-color", "#52be80");
+                subHeaderRow.appendChild(driveTimeHeader);
+
+                const offloadTimeHeader = document.createElement("th");
+                offloadTimeHeader.textContent = "Offload Time";
+                offloadTimeHeader.style.backgroundColor = "#7dcea0";
+                offloadTimeHeader.setAttribute("data-color", "#7dcea0");
+                subHeaderRow.appendChild(offloadTimeHeader);
+              } else if (isMontreal) {
+                const guidelinesHeader = document.createElement("th");
+                guidelinesHeader.textContent = "Guidelines";
+                guidelinesHeader.style.backgroundColor = "#af7ac5";
+                guidelinesHeader.setAttribute("data-color", "#af7ac5");
+                subHeaderRow.appendChild(guidelinesHeader);
+
+                const revisionsHeader = document.createElement("th");
+                revisionsHeader.textContent = "Revisions";
+                revisionsHeader.style.backgroundColor = "#c39bd3";
+                revisionsHeader.setAttribute("data-color", "#c39bd3");
+                subHeaderRow.appendChild(revisionsHeader);
+              }
+
+              thead.appendChild(subHeaderRow);
               table.appendChild(thead);
               table.appendChild(tbody);
               tableContainer.appendChild(table);
@@ -1161,7 +1284,8 @@
                     region.label === "DC 17: Brampton" ||
                     region.label === "DC 26: Vancouver" ||
                     region.label === "DC 34: Calgary" ||
-                    region.label === "DC 49: Winnipeg"
+                    region.label === "DC 49: Winnipeg" ||
+                    region.label === "DC 06: Montreal"
                   )
                 ) {
                   const guidelineCell = document.createElement("td");
@@ -1175,8 +1299,30 @@
                   row.appendChild(guidelineCell);
                 }
 
-                const infoCell = document.createElement("td");
-                if (!(region.label === "DC 06: Montreal")) {
+                // Additional Time columns
+                if (region.label === "DC 06: Montreal") {
+                  // Montreal: Guidelines column
+                  const guidelinesCell = document.createElement("td");
+                  guidelinesCell.textContent = calculateAdditionalTime(
+                    snowVal,
+                    rainVal,
+                    dayData.temperatureDay,
+                    region.label,
+                    city.label,
+                  );
+                  row.appendChild(guidelinesCell);
+
+                  // Montreal: Revisions column (currently empty)
+                  const revisionsCell = document.createElement("td");
+                  revisionsCell.textContent = "";
+                  row.appendChild(revisionsCell);
+                } else if (
+                  region.label === "DC 49: Winnipeg" ||
+                  region.label === "DC 56: Oshawa" ||
+                  region.label === "DC 26: Vancouver"
+                ) {
+                  // Simple Additional Time column
+                  const infoCell = document.createElement("td");
                   infoCell.textContent = calculateAdditionalTime(
                     snowVal,
                     rainVal,
@@ -1185,31 +1331,29 @@
                     city.label,
                   );
                   row.appendChild(infoCell);
-
-                  tbody.appendChild(row);
-                } else {
-                  infoCell.textContent = calculateAdditionalTimeMTL(
+                } else if (
+                  region.label === "DC 17: Brampton" ||
+                  region.label === "DC 34: Calgary"
+                ) {
+                  // Drive Time column
+                  const driveTimeCell = document.createElement("td");
+                  driveTimeCell.textContent = calculateAdditionalTime(
                     snowVal,
                     rainVal,
                     dayData.temperatureDay,
                     region.label,
                     city.label,
                   );
-                  row.appendChild(infoCell);
-                }
+                  row.appendChild(driveTimeCell);
 
-                if (
-                  region.label === "DC 17: Brampton" ||
-                  region.label === "DC 34: Calgary"
-                ) {
-                  const addedOffloadTimeCell = document.createElement("td");
-                  addedOffloadTimeCell.textContent =
-                    calculateAdditionalOffloadTime(
-                      dayData.temperatureDay,
-                      region.label,
-                      city.label,
-                    );
-                  row.appendChild(addedOffloadTimeCell);
+                  // Offload Time column
+                  const offloadTimeCell = document.createElement("td");
+                  offloadTimeCell.textContent = calculateAdditionalOffloadTime(
+                    dayData.temperatureDay,
+                    region.label,
+                    city.label,
+                  );
+                  row.appendChild(offloadTimeCell);
                 }
 
                 tbody.appendChild(row);
@@ -1350,7 +1494,16 @@
           var cols = rows[i].querySelectorAll("td, th");
           for (var j = 0; j < cols.length; j++) {
             var data = cols[j].innerText;
+            var colspan = cols[j].colSpan || 1;
+            var rowspan = cols[j].rowSpan || 1;
+
+            // Add the cell value
             row.push(data);
+
+            // Add empty cells for colspan
+            for (var k = 1; k < colspan; k++) {
+              row.push("");
+            }
           }
           textRows.push(row.join("\t"));
         }
@@ -1367,25 +1520,38 @@
           for (var j = 0; j < cols.length; j++) {
             var cell = cols[j];
             var isHeader = cell.tagName === "TH";
-            var cellStyle = "border: 1px solid #dededf; padding: 5px;";
+            var cellStyle = "border: 1px solid #636363; padding: 5px;";
 
             // Add header styling
             if (isHeader) {
+              // Get background color from inline style or data attribute
+              var bgColor =
+                cell.style.backgroundColor ||
+                cell.getAttribute("data-color") ||
+                "#0036d6";
               cellStyle +=
-                " background-color: #0036d6; color: white; font-weight: bold;";
+                " background-color: " +
+                bgColor +
+                "; color: white; font-weight: bold;";
+            } else {
+              cellStyle += " background-color: #ffffff; color: #000000;";
             }
 
             var tag = isHeader ? "th" : "td";
+            var attrs = ' style="' + cellStyle + '"';
+
+            // Add colspan if present
+            if (cell.colSpan && cell.colSpan > 1) {
+              attrs += ' colspan="' + cell.colSpan + '"';
+            }
+
+            // Add rowspan if present
+            if (cell.rowSpan && cell.rowSpan > 1) {
+              attrs += ' rowspan="' + cell.rowSpan + '"';
+            }
+
             htmlTable +=
-              "<" +
-              tag +
-              ' style="' +
-              cellStyle +
-              '">' +
-              cell.innerText +
-              "</" +
-              tag +
-              ">";
+              "<" + tag + attrs + ">" + cell.innerText + "</" + tag + ">";
           }
           htmlTable += "</tr>";
         }
