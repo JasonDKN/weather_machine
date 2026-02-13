@@ -850,7 +850,10 @@
             regionLabel,
             cityLabel,
           ) {
-            if (regionLabel === "DC 17: Brampton") {
+            if (
+              regionLabel === "DC 17: Brampton" ||
+              regionLabel === "DC 56: Oshawa"
+            ) {
               if (temperatureVal <= -10 && temperatureVal > -20) {
                 return "15 minutes";
               } else if (temperatureVal <= -20 && temperatureVal > -30) {
@@ -990,7 +993,6 @@
               // Temperature main header (only if temperature columns are shown)
               const showTemp = !(
                 region.label === "DC 49: Winnipeg" ||
-                region.label === "DC 56: Oshawa" ||
                 region.label === "DC 26: Vancouver"
               );
 
@@ -1056,20 +1058,20 @@
               }
 
               // Additional Time header logic
-              // Calgary & Brampton: "Additional Time" with sub-headers "Drive Time" and "Offload Time"
+              // Calgary, Brampton, and Oshawa: "Additional Time" with sub-headers "Drive Time" and "Offload Time"
               // Montreal: "Additional Time" with sub-headers "Guidelines" and "Revisions"
-              // Winnipeg, Oshawa, Vancouver: "Additional Time" with no sub-headers (rowSpan 2)
+              // Winnipeg & Vancouver: "Additional Time" with no sub-headers (rowSpan 2)
 
-              const isCalgaryOrBrampton =
+              const complexAdditionalTimeRegions =
                 region.label === "DC 17: Brampton" ||
+                region.label === "DC 56: Oshawa" ||
                 region.label === "DC 34: Calgary";
               const isMontreal = region.label === "DC 06: Montreal";
-              const isSimpleAdditionalTime =
+              const simpleAdditionalTimeRegions =
                 region.label === "DC 49: Winnipeg" ||
-                region.label === "DC 56: Oshawa" ||
                 region.label === "DC 26: Vancouver";
 
-              if (isCalgaryOrBrampton) {
+              if (complexAdditionalTimeRegions) {
                 // Calgary and Brampton: Drive Time + Offload Time
                 const additionalTimeHeader = document.createElement("th");
                 additionalTimeHeader.textContent = "Additional Time";
@@ -1085,7 +1087,7 @@
                 additionalTimeHeader.style.backgroundColor = "#9b59b6";
                 additionalTimeHeader.setAttribute("data-color", "#9b59b6");
                 mainHeaderRow.appendChild(additionalTimeHeader);
-              } else if (isSimpleAdditionalTime) {
+              } else if (simpleAdditionalTimeRegions) {
                 // Winnipeg, Oshawa, Vancouver: Single column with no sub-headers
                 const additionalTimeHeader = document.createElement("th");
                 additionalTimeHeader.textContent = "Additional Time";
@@ -1135,7 +1137,7 @@
               subHeaderRow.appendChild(snowTotalHeader);
 
               // Additional Time sub-headers (only for Calgary, Brampton, and Montreal)
-              if (isCalgaryOrBrampton) {
+              if (complexAdditionalTimeRegions) {
                 const driveTimeHeader = document.createElement("th");
                 driveTimeHeader.textContent = "Drive Time";
                 driveTimeHeader.style.backgroundColor = "#52be80";
@@ -1221,7 +1223,6 @@
                 if (
                   !(
                     region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
                     region.label === "DC 26: Vancouver"
                   )
                 ) {
@@ -1234,7 +1235,6 @@
                 if (
                   !(
                     region.label === "DC 49: Winnipeg" ||
-                    region.label === "DC 56: Oshawa" ||
                     region.label === "DC 26: Vancouver"
                   )
                 ) {
@@ -1319,7 +1319,6 @@
                   row.appendChild(revisionsCell);
                 } else if (
                   region.label === "DC 49: Winnipeg" ||
-                  region.label === "DC 56: Oshawa" ||
                   region.label === "DC 26: Vancouver"
                 ) {
                   // Simple Additional Time column
@@ -1334,7 +1333,8 @@
                   row.appendChild(infoCell);
                 } else if (
                   region.label === "DC 17: Brampton" ||
-                  region.label === "DC 34: Calgary"
+                  region.label === "DC 34: Calgary" ||
+                  region.label === "DC 56: Oshawa"
                 ) {
                   // Drive Time column
                   const driveTimeCell = document.createElement("td");
